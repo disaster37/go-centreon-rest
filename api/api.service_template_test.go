@@ -1,7 +1,7 @@
 package centreonapi
 
 import (
-	"github.com/disaster37/go-centreon-rest/v21.10/models"
+	"github.com/disaster37/go-centreon-rest/v21/models"
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
 )
