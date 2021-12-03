@@ -15,4 +15,4 @@ build-mock:
 	mockgen --build_flags=--mod=mod -destination=mocks/mock_service_template.go -package=mocks github.com/disaster37/go-centreon-rest/21.10.x/api ServiceTemplateAPI
 
 build: fmt
-	go build
+	go build .
