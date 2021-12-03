@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/disaster37/go-centreon-rest/21.10.x/models"
+	"github.com/disaster37/go-centreon-rest/v21.10/models"
 	"github.com/go-resty/resty/v2"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"

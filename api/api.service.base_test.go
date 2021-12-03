@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/disaster37/go-centreon-rest/21.10.x/models"
+	"github.com/disaster37/go-centreon-rest/v21.10/models"
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
 )

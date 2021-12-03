@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/disaster37/go-centreon-rest/21.10.x/api"
+	"github.com/disaster37/go-centreon-rest/v21.10/api"
 	"github.com/go-resty/resty/v2"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"

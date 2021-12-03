@@ -1,4 +1,4 @@
-module github.com/disaster37/go-centreon-rest/21.10.x
+module github.com/disaster37/go-centreon-rest/v21.10
 
 go 1.16
 
