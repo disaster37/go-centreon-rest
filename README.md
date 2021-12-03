@@ -1,5 +1,6 @@
 [![build](https://github.com/disaster37/go-centreon-rest/actions/workflows/workflow.yaml/badge.svg)](https://github.com/disaster37/go-centreon-rest/actions/workflows/workflow.yaml)
 [![GoDoc](https://godoc.org/github.com/disaster37/go-centreon-rest?status.svg)](http://godoc.org/github.com/disaster37/go-centreon-rest)
+[![Go Report Card](https://goreportcard.com/badge/github.com/disaster37/go-centreon-rest)](https://goreportcard.com/report/github.com/disaster37/go-centreon-rest)
 [![codecov](https://codecov.io/gh/disaster37/go-centreon-rest/branch/21.10.x/graph/badge.svg)](https://codecov.io/gh/disaster37/go-centreon-rest/branch/21.10.x)
 
 # go-centreon-rest
