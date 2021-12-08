@@ -9,6 +9,7 @@ type API interface {
 	Service() ServiceAPI
 	ServiceTemplate() ServiceTemplateAPI
 	Client() *resty.Client
+	Auth() (err error)
 }
 
 type serviceBaseAPI interface {

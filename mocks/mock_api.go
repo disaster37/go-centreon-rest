@@ -35,6 +35,20 @@ func (m *MockAPI) EXPECT() *MockAPIMockRecorder {
 	return m.recorder
 }
 
+// Auth mocks base method.
+func (m *MockAPI) Auth() error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Auth")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Auth indicates an expected call of Auth.
+func (mr *MockAPIMockRecorder) Auth() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Auth", reflect.TypeOf((*MockAPI)(nil).Auth))
+}
+
 // Client mocks base method.
 func (m *MockAPI) Client() *resty.Client {
 	m.ctrl.T.Helper()

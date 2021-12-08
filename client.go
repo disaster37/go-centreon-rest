@@ -2,40 +2,27 @@ package centreon
 
 import (
 	"crypto/tls"
-	"encoding/json"
 	"net/http"
-	"time"
 
 	"github.com/disaster37/go-centreon-rest/v21/api"
+	"github.com/disaster37/go-centreon-rest/v21/models"
 	"github.com/go-resty/resty/v2"
-	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
-
-// Config contain the value to access on Kibana API
-type Config struct {
-	Address          string
-	Username         string
-	Password         string
-	DisableVerifySSL bool
-	CAs              []string
-	Timeout          time.Duration
-	Debug            bool
-}
 
 // Client contain the REST client and the API specification
 type Client struct {
 	API    centreonapi.API
-	config Config
+	config *models.Config
 }
 
 // NewDefaultClient init client with empty config
 func NewDefaultClient() (*Client, error) {
-	return NewClient(Config{})
+	return NewClient(&models.Config{})
 }
 
 // NewClient init client with custom config
-func NewClient(cfg Config) (*Client, error) {
+func NewClient(cfg *models.Config) (*Client, error) {
 	if cfg.Address == "" {
 		cfg.Address = "http://localhost/api/v2.0"
 	}
@@ -61,14 +48,14 @@ func NewClient(cfg Config) (*Client, error) {
 	}
 
 	client := &Client{
-		API:    centreonapi.New(restyClient),
+		API:    centreonapi.New(restyClient, cfg),
 		config: cfg,
 	}
 
 	// handle refresh token when get Unauthorized
 	restyClient.AddRetryCondition(func(r *resty.Response, e error) bool {
 		if r.StatusCode() == http.StatusUnauthorized {
-			if err := client.getToken(); err != nil {
+			if err := client.API.Auth(); err != nil {
 				log.Errorf("Error when refresh token: %s", err.Error())
 				return false
 			}
@@ -79,38 +66,4 @@ func NewClient(cfg Config) (*Client, error) {
 
 	return client, nil
 
-}
-
-func (c *Client) Auth() (err error) {
-	return c.getToken()
-}
-
-func (c *Client) getToken() (err error) {
-	// Get Token
-	resp, err := c.API.Client().R().
-		SetFormData(map[string]string{
-			"username": c.config.Username,
-			"password": c.config.Password,
-		}).
-		SetQueryParams(map[string]string{
-			"action": "authenticate",
-			"object": "",
-		}).
-		Post("")
-	if err != nil {
-		return err
-	}
-	if resp.StatusCode() >= 300 {
-		return errors.Errorf("Error when signin: %s", resp.Body())
-	}
-	result := map[string]string{}
-	if err = json.Unmarshal(resp.Body(), &result); err != nil {
-		return err
-	}
-	if result["authToken"] == "" {
-		return errors.New("We get an empty token...")
-	}
-	c.API.Client().SetHeader("centreon-auth-token", result["authToken"])
-
-	return nil
 }
