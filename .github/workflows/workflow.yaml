@@ -45,11 +45,6 @@ jobs:
         files: coverage.txt
         flags: unittests
         fail_ci_if_error: true
-    - uses: codecov/codecov-action@v2
-      with:
-        files: cover.out
-        flags: unittests
-        fail_ci_if_error: true
     - name: Setup Centreon
       run: |
         #!/bin/bash
