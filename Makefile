@@ -6,7 +6,10 @@ fmt:
 	gofmt -s -w ./
 
 test: build-mock fmt
-	go test ./... -v -count 1 -parallel 1 -race -coverprofile=coverage.txt -covermode=atomic $(TESTARGS) -timeout 120s
+	go test ./api/... ./. -v -count 1 -parallel 1 -race -coverprofile=coverage.txt -covermode=atomic $(TESTARGS) -timeout 120s
+
+test-acc:
+	go test ./acctests/... -v $(TESTARGS) -timeout 120s
 
 build-mock:
 	go install github.com/golang/mock/mockgen@v1.6.0

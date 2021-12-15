@@ -41,9 +41,6 @@ func (s *serviceBaseImpl) Get(host, name string) (service *models.ServiceBaseGet
 		SetBody(payload).
 		Post("")
 	if err != nil {
-		if ErrIsNotFound(err) {
-			return nil, nil
-		}
 		return nil, err
 	}
 	if resp.StatusCode() >= 300 {
@@ -213,18 +210,33 @@ func (s *serviceBaseImpl) GetParam(host, service string, params []string) (value
 	if err := json.Unmarshal(resp.Body(), result); err != nil {
 		return nil, err
 	}
-	tmpValues := make([]map[string]string, 0, 1)
-	if err := json.Unmarshal(result.Result, &tmpValues); err != nil {
-		return nil, err
-	}
 
-	if len(tmpValues) == 0 {
-		return values, nil
+	// It return array
+	if len(params) == 1 {
+		tmpValues := make([]string, 0, 1)
+		if err := json.Unmarshal(result.Result, &tmpValues); err != nil {
+			return nil, err
+		}
+		if len(tmpValues) > 0 {
+			values = map[string]string{
+				params[0]: tmpValues[0],
+			}
+		}
+	} else {
+		// else it return map
+		tmpValues := make([]map[string]string, 0, 1)
+		if err := json.Unmarshal(result.Result, &tmpValues); err != nil {
+			return nil, err
+		}
+
+		if len(tmpValues) != 0 {
+			values = tmpValues[0]
+		}
 	}
 
 	log.Debugf("Get params %s on service  %s/%s successfully", strings.Join(params, "|"), host, service)
 
-	return tmpValues[0], nil
+	return values, nil
 }
 
 // GetMacros permit to get all macros on service

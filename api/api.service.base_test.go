@@ -215,11 +215,7 @@ func (t *APITestSuite) TestServiceBaseGetParam() {
 
 	// Normal use case
 	result := &ResultTest{
-		Result: []map[string]string{
-			{
-				"key": "value",
-			},
-		},
+		Result: []string{"value"},
 	}
 	httpmock.RegisterResponder("POST", testURL, func(req *http.Request) (*http.Response, error) {
 		payload = &Payload{}
