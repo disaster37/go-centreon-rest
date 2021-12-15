@@ -41,6 +41,9 @@ func (s *serviceBaseImpl) Get(host, name string) (service *models.ServiceBaseGet
 		SetBody(payload).
 		Post("")
 	if err != nil {
+		if ErrIsNotFound(err) {
+			return nil, nil
+		}
 		return nil, err
 	}
 	if resp.StatusCode() >= 300 {
