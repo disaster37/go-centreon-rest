@@ -237,6 +237,20 @@ func (mr *MockServiceAPIMockRecorder) SetCategories(arg0, arg1, arg2 interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetCategories", reflect.TypeOf((*MockServiceAPI)(nil).SetCategories), arg0, arg1, arg2)
 }
 
+// SetHost mocks base method.
+func (m *MockServiceAPI) SetHost(arg0, arg1, arg2 string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetHost", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetHost indicates an expected call of SetHost.
+func (mr *MockServiceAPIMockRecorder) SetHost(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetHost", reflect.TypeOf((*MockServiceAPI)(nil).SetHost), arg0, arg1, arg2)
+}
+
 // SetMacro mocks base method.
 func (m *MockServiceAPI) SetMacro(arg0, arg1 string, arg2 *models.Macro) error {
 	m.ctrl.T.Helper()

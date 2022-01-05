@@ -3,6 +3,8 @@ package centreonapi
 import (
 	"github.com/disaster37/go-centreon-rest/v21/models"
 	"github.com/go-resty/resty/v2"
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -55,4 +57,34 @@ func (s *ServiceImpl) List() (services []*models.ServiceGet, err error) {
 
 	return services, nil
 
+}
+
+func (s *ServiceImpl) SetHost(host, name, newHost string) (err error) {
+	if host == "" {
+		return errors.New("Host must be provided")
+	}
+	if name == "" {
+		return errors.New("Service name must be provided")
+	}
+	if newHost == "" {
+		return errors.New("New host must be provided")
+	}
+	log.Tracef("Host: %s", host)
+	log.Tracef("Service Name: %s", name)
+	log.Tracef("New host: %s", newHost)
+
+	payload := NewPayload("sethost", s.object, "%s;%s;%s", host, name, newHost)
+	resp, err := s.client.R().
+		SetBody(payload).
+		Post("")
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode() >= 300 {
+		return errors.Errorf("Error when set new host %s/%s: %s", newHost, name, resp.Body())
+	}
+
+	log.Debugf("Set new host %s on %s successfully", newHost, name)
+
+	return nil
 }

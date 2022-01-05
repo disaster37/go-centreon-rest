@@ -40,6 +40,7 @@ type serviceBaseAPIGeneric interface {
 type ServiceAPI interface {
 	Get(host, name string) (service *models.ServiceGet, err error)
 	List() (services []*models.ServiceGet, err error)
+	SetHost(host, name, newHost string) (err error)
 	serviceBaseAPI
 }
 

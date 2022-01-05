@@ -106,6 +106,7 @@ func (s *serviceBaseImpl) Add(host, name, template string) (err error) {
 	log.Tracef("Template: %s", template)
 
 	payload := NewPayload("add", s.object, "%s;%s;%s", host, name, template)
+
 	log.Debugf("Payload: %s", payload)
 	resp, err := s.client.R().
 		SetBody(payload).

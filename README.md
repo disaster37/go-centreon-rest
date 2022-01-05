@@ -26,6 +26,7 @@ The following API call is implemented:
   - getservicegroup
   - setservicegroup
   - delservicegroup
+  - sethost
 
 ## Sample
 

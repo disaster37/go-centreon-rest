@@ -12,7 +12,7 @@ func (t *AccTestSuite) TestService() {
 		expectedS *models.ServiceGet
 	)
 
-	// Create service
+	// Create complete service
 	macro := &models.Macro{
 		Name:       "MAC1",
 		Value:      "test",
@@ -80,4 +80,7 @@ func (t *AccTestSuite) TestService() {
 	s, err = t.client.API.Service().Get("localhost", "fake")
 	assert.NoError(t.T(), err)
 	assert.Nil(t.T(), s)
+
+	// Update service
+	// @TODO
 }

@@ -1,6 +1,9 @@
 package centreonapi
 
 import (
+	"encoding/json"
+	"net/http"
+
 	"github.com/disaster37/go-centreon-rest/v21/models"
 	"github.com/jarcoal/httpmock"
 	"github.com/stretchr/testify/assert"
@@ -95,5 +98,31 @@ func (t *APITestSuite) TestServiceList() {
 	}
 	httpmock.RegisterResponder("POST", testURL, responder)
 	services, err = t.client.Service().List()
+	assert.Error(t.T(), err)
+}
+
+func (t *APITestSuite) TestServiceSetHost() {
+
+	var payload *Payload
+
+	httpmock.RegisterResponder("POST", testURL, func(req *http.Request) (*http.Response, error) {
+		payload = &Payload{}
+		if err := json.NewDecoder(req.Body).Decode(payload); err != nil {
+			panic(err)
+		}
+		return httpmock.NewStringResponse(200, ""), nil
+	})
+	err := t.client.Service().SetHost("host1", "service", "host2")
+	assert.NoError(t.T(), err)
+	expectedPayload := &Payload{
+		Action: "sethost",
+		Object: "service",
+		Values: "host1;service;host2",
+	}
+	assert.Equal(t.T(), expectedPayload, payload)
+
+	// When error
+	httpmock.RegisterResponder("POST", testURL, httpmock.NewStringResponder(500, ""))
+	err = t.client.Service().SetHost("host1", "service", "host2")
 	assert.Error(t.T(), err)
 }
