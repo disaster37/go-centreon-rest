@@ -66,7 +66,7 @@ func (t *APITestSuite) TestServiceGroupGet() {
 		panic(err)
 	}
 	httpmock.RegisterResponder("POST", testURL, responder)
-	serviceGroup, err = sgHandler.Get("serviceGroup")
+	_, err = sgHandler.Get("serviceGroup")
 	assert.Error(t.T(), err)
 }
 
@@ -125,7 +125,7 @@ func (t *APITestSuite) TestServiceGroupList() {
 		panic(err)
 	}
 	httpmock.RegisterResponder("POST", testURL, responder)
-	serviceGroups, err = sgHandler.List()
+	_, err = sgHandler.List()
 	assert.Error(t.T(), err)
 }
 
@@ -242,6 +242,6 @@ func (t *APITestSuite) TestServiceGroupGetParam() {
 
 	// When error
 	httpmock.RegisterResponder("POST", testURL, httpmock.NewStringResponder(500, ""))
-	values, err = sgHandler.GetParam("serviceGroup", []string{"key"})
+	_, err = sgHandler.GetParam("serviceGroup", []string{"key"})
 	assert.Error(t.T(), err)
 }

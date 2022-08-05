@@ -20,7 +20,7 @@ func (t *AccTestSuite) TestServiceGroup() {
 
 	// Get service
 	expectedS = &models.ServiceGroup{
-		Name: "test-acc",
+		Name:        "test-acc",
 		Description: "Test custom SG",
 	}
 	s, err = t.client.API.ServiceGroup().Get("test-acc")
@@ -34,7 +34,6 @@ func (t *AccTestSuite) TestServiceGroup() {
 	assert.NoError(t.T(), err)
 	assert.Equal(t.T(), "created from acc test", params["comment"])
 	assert.Equal(t.T(), "1", params["activate"])
-
 
 	// Get not existing service
 	s, err = t.client.API.ServiceGroup().Get("fake")

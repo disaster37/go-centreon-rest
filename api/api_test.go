@@ -28,7 +28,7 @@ func TestAPISuite(t *testing.T) {
 
 func (t *APITestSuite) SetupTest() {
 	restyClient := resty.New().
-		SetHostURL(URL).
+		SetBaseURL(URL).
 		SetHeader("Content-Type", "application/json").
 		SetDebug(false).
 		SetQueryParams(map[string]string{

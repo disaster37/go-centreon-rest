@@ -28,7 +28,7 @@ func NewClient(cfg *models.Config) (*Client, error) {
 	}
 
 	restyClient := resty.New().
-		SetHostURL(cfg.Address).
+		SetBaseURL(cfg.Address).
 		SetHeader("Content-Type", "application/json").
 		SetTimeout(cfg.Timeout).
 		SetDebug(cfg.Debug).
@@ -43,7 +43,7 @@ func NewClient(cfg *models.Config) (*Client, error) {
 		restyClient.SetRootCertificate(path)
 	}
 
-	if cfg.DisableVerifySSL == true {
+	if cfg.DisableVerifySSL {
 		restyClient.SetTLSClientConfig(&tls.Config{InsecureSkipVerify: true})
 	}
 

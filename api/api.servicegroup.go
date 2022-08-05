@@ -175,7 +175,7 @@ func (s *ServiceGroupImpl) GetParam(serviceGroupName string, params []string) (v
 	if serviceGroupName == "" {
 		return nil, errors.New("ServiceGroup name must be provided")
 	}
-	if params == nil || len(params) == 0 {
+	if len(params) == 0 {
 		return nil, errors.New("Params must be provided")
 	}
 	log.Tracef("ServiceGroup Name: %s", serviceGroupName)
