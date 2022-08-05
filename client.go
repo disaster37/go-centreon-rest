@@ -54,7 +54,7 @@ func NewClient(cfg *models.Config) (*Client, error) {
 
 	// handle refresh token when get Unauthorized
 	restyClient.AddRetryCondition(func(r *resty.Response, e error) bool {
-		if r.StatusCode() == http.StatusUnauthorized {
+		if r.StatusCode() == http.StatusUnauthorized || r.StatusCode() == http.StatusForbidden {
 			if err := client.API.Auth(); err != nil {
 				log.Errorf("Error when refresh token: %s", err.Error())
 				return false
