@@ -16,6 +16,7 @@ build-mock:
 	mockgen --build_flags=--mod=mod -destination=mocks/mock_api.go -package=mocks github.com/disaster37/go-centreon-rest/v21/api API
 	mockgen --build_flags=--mod=mod -destination=mocks/mock_service.go -package=mocks github.com/disaster37/go-centreon-rest/v21/api ServiceAPI
 	mockgen --build_flags=--mod=mod -destination=mocks/mock_service_template.go -package=mocks github.com/disaster37/go-centreon-rest/v21/api ServiceTemplateAPI
+	mockgen --build_flags=--mod=mod -destination=mocks/mock_service_group.go -package=mocks github.com/disaster37/go-centreon-rest/v21/api ServiceGroupAPI
 
 build: fmt
 	go build .

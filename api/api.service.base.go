@@ -51,7 +51,7 @@ func (s *serviceBaseImpl) Get(host, name string) (service *models.ServiceBaseGet
 	if err = json.Unmarshal(resp.Body(), result); err != nil {
 		return nil, err
 	}
-	services := make([]*models.ServiceBaseGet, 0)
+	services := make([]*models.ServiceBaseGet, 0, 1)
 	if err = json.Unmarshal(result.Result, &services); err != nil {
 		return nil, err
 	}

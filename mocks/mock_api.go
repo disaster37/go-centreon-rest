@@ -77,6 +77,20 @@ func (mr *MockAPIMockRecorder) Service() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Service", reflect.TypeOf((*MockAPI)(nil).Service))
 }
 
+// ServiceGroup mocks base method.
+func (m *MockAPI) ServiceGroup() centreonapi.ServiceGroupAPI {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ServiceGroup")
+	ret0, _ := ret[0].(centreonapi.ServiceGroupAPI)
+	return ret0
+}
+
+// ServiceGroup indicates an expected call of ServiceGroup.
+func (mr *MockAPIMockRecorder) ServiceGroup() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ServiceGroup", reflect.TypeOf((*MockAPI)(nil).ServiceGroup))
+}
+
 // ServiceTemplate mocks base method.
 func (m *MockAPI) ServiceTemplate() centreonapi.ServiceTemplateAPI {
 	m.ctrl.T.Helper()
