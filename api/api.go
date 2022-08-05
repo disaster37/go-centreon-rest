@@ -8,6 +8,7 @@ import (
 type API interface {
 	Service() ServiceAPI
 	ServiceTemplate() ServiceTemplateAPI
+	ServiceGroup() ServiceGroupAPI
 	Client() *resty.Client
 	Auth() (err error)
 }
@@ -48,4 +49,13 @@ type ServiceTemplateAPI interface {
 	Get(host, name string) (service *models.ServiceTemplateGet, err error)
 	List() (services []*models.ServiceTemplateGet, err error)
 	serviceBaseAPI
+}
+
+type ServiceGroupAPI interface {
+	Get(name string) (serviceGroup *models.ServiceGroup, err error)
+	List() (serviceGroups []*models.ServiceGroup, err error)
+	Add(name, description string) (err error)
+	Delete(name string) (err error)
+	SetParam(serviceGroupName, name, value string) (err error)
+	GetParam(serviceGroupName string, params []string) (values map[string]string, err error)
 }

@@ -51,7 +51,7 @@ func (t *APITestSuite) TestServiceGet() {
 		panic(err)
 	}
 	httpmock.RegisterResponder("POST", testURL, responder)
-	service, err = t.client.Service().Get("host", "service")
+	_, err = t.client.Service().Get("host", "service")
 	assert.Error(t.T(), err)
 }
 
@@ -97,7 +97,7 @@ func (t *APITestSuite) TestServiceList() {
 		panic(err)
 	}
 	httpmock.RegisterResponder("POST", testURL, responder)
-	services, err = t.client.Service().List()
+	_, err = t.client.Service().List()
 	assert.Error(t.T(), err)
 }
 

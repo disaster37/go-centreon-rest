@@ -12,6 +12,7 @@ import (
 type APIImpl struct {
 	service         ServiceAPI
 	serviceTemplate ServiceTemplateAPI
+	serviceGroup    ServiceGroupAPI
 	client          *resty.Client
 	config          *models.Config
 }
@@ -21,6 +22,7 @@ func New(client *resty.Client, config *models.Config) API {
 	return &APIImpl{
 		service:         NewService(client),
 		serviceTemplate: NewServiceTemplate(client),
+		serviceGroup:    NewServiceGroup(client),
 		client:          client,
 		config:          config,
 	}
@@ -34,6 +36,11 @@ func (api *APIImpl) Service() ServiceAPI {
 // ServiceTemplate permit to get service template API handler
 func (api *APIImpl) ServiceTemplate() ServiceTemplateAPI {
 	return api.serviceTemplate
+}
+
+// ServiceGroup permit to get service group API handler
+func (api *APIImpl) ServiceGroup() ServiceGroupAPI {
+	return api.serviceGroup
 }
 
 // Client permit to get instance of resty client

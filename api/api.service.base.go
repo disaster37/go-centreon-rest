@@ -51,7 +51,7 @@ func (s *serviceBaseImpl) Get(host, name string) (service *models.ServiceBaseGet
 	if err = json.Unmarshal(resp.Body(), result); err != nil {
 		return nil, err
 	}
-	services := make([]*models.ServiceBaseGet, 0)
+	services := make([]*models.ServiceBaseGet, 0, 1)
 	if err = json.Unmarshal(result.Result, &services); err != nil {
 		return nil, err
 	}
@@ -189,7 +189,7 @@ func (s *serviceBaseImpl) GetParam(host, service string, params []string) (value
 	if service == "" {
 		return nil, errors.New("Service name must be provided")
 	}
-	if params == nil || len(params) == 0 {
+	if len(params) == 0 {
 		return nil, errors.New("Params must be provided")
 	}
 	log.Tracef("Host: %s", host)
@@ -388,7 +388,7 @@ func (s *serviceBaseImpl) SetCategories(host, service string, categories []strin
 	if service == "" {
 		return errors.New("Service name must be provided")
 	}
-	if categories == nil || len(categories) == 0 {
+	if len(categories) == 0 {
 		return errors.New("Categories must be provided")
 	}
 	log.Tracef("Host: %s", host)
@@ -419,7 +419,7 @@ func (s *serviceBaseImpl) DeleteCategories(host, service string, categories []st
 	if service == "" {
 		return errors.New("Service name must be provided")
 	}
-	if categories == nil || len(categories) == 0 {
+	if len(categories) == 0 {
 		return errors.New("Categories must be provided")
 	}
 	log.Tracef("Host: %s", host)
@@ -491,7 +491,7 @@ func (s *serviceBaseImpl) SetServiceGroups(host, service string, serviceGroups [
 	if service == "" {
 		return errors.New("Service name must be provided")
 	}
-	if serviceGroups == nil || len(serviceGroups) == 0 {
+	if len(serviceGroups) == 0 {
 		return errors.New("Service groups must be provided")
 	}
 	log.Tracef("Host: %s", host)
@@ -522,7 +522,7 @@ func (s *serviceBaseImpl) DeleteServiceGroups(host, service string, serviceGroup
 	if service == "" {
 		return errors.New("Service name must be provided")
 	}
-	if serviceGroups == nil || len(serviceGroups) == 0 {
+	if len(serviceGroups) == 0 {
 		return errors.New("Service groups must be provided")
 	}
 	log.Tracef("Host: %s", host)
@@ -594,7 +594,7 @@ func (s *serviceBaseImpl) SetTraps(host, service string, traps []string) (err er
 	if service == "" {
 		return errors.New("Service name must be provided")
 	}
-	if traps == nil || len(traps) == 0 {
+	if len(traps) == 0 {
 		return errors.New("Traps must be provided")
 	}
 	log.Tracef("Host: %s", host)
@@ -625,7 +625,7 @@ func (s *serviceBaseImpl) DeleteTraps(host, service string, traps []string) (err
 	if service == "" {
 		return errors.New("Service name must be provided")
 	}
-	if traps == nil || len(traps) == 0 {
+	if len(traps) == 0 {
 		return errors.New("Traps must be provided")
 	}
 	log.Tracef("Host: %s", host)

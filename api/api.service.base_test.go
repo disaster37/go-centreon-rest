@@ -64,7 +64,7 @@ func (t *APITestSuite) TestServiceBaseGet() {
 		panic(err)
 	}
 	httpmock.RegisterResponder("POST", testURL, responder)
-	service, err = serviceBase.Get("host", "service")
+	_, err = serviceBase.Get("host", "service")
 	assert.Error(t.T(), err)
 }
 
@@ -123,7 +123,7 @@ func (t *APITestSuite) TestServiceBaseList() {
 		panic(err)
 	}
 	httpmock.RegisterResponder("POST", testURL, responder)
-	services, err = serviceBase.List()
+	_, err = serviceBase.List()
 	assert.Error(t.T(), err)
 }
 
@@ -240,7 +240,7 @@ func (t *APITestSuite) TestServiceBaseGetParam() {
 
 	// When error
 	httpmock.RegisterResponder("POST", testURL, httpmock.NewStringResponder(500, ""))
-	values, err = serviceBase.GetParam("host", "service", []string{"key"})
+	_, err = serviceBase.GetParam("host", "service", []string{"key"})
 	assert.Error(t.T(), err)
 }
 
@@ -282,7 +282,7 @@ func (t *APITestSuite) TestServiceBaseGetMacros() {
 
 	// When error
 	httpmock.RegisterResponder("POST", testURL, httpmock.NewStringResponder(500, ""))
-	macros, err = serviceBase.GetMacros("host", "service")
+	_, err = serviceBase.GetMacros("host", "service")
 	assert.Error(t.T(), err)
 }
 
@@ -381,7 +381,7 @@ func (t *APITestSuite) TestServiceBaseGetCategories() {
 
 	// When error
 	httpmock.RegisterResponder("POST", testURL, httpmock.NewStringResponder(500, ""))
-	categories, err = serviceBase.GetCategories("host", "service")
+	_, err = serviceBase.GetCategories("host", "service")
 	assert.Error(t.T(), err)
 }
 
@@ -475,7 +475,7 @@ func (t *APITestSuite) TestServiceBaseGetServiceGroups() {
 
 	// When error
 	httpmock.RegisterResponder("POST", testURL, httpmock.NewStringResponder(500, ""))
-	serviceGroups, err = serviceBase.GetServiceGroups("host", "service")
+	_, err = serviceBase.GetServiceGroups("host", "service")
 	assert.Error(t.T(), err)
 }
 
@@ -569,7 +569,7 @@ func (t *APITestSuite) TestServiceBaseGetTraps() {
 
 	// When error
 	httpmock.RegisterResponder("POST", testURL, httpmock.NewStringResponder(500, ""))
-	traps, err = serviceBase.GetTraps("host", "service")
+	_, err = serviceBase.GetTraps("host", "service")
 	assert.Error(t.T(), err)
 }
 
