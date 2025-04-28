@@ -39,6 +39,7 @@ jobs:
         files: coverage.txt
         flags: unittests
         fail_ci_if_error: true
+        token: ${{ secrets.CODECOV_TOKEN }}
     - name: Setup Centreon
       run: |
         #!/bin/bash
