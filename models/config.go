@@ -8,12 +8,12 @@ import (
 
 // Config contain the value to access on Kibana API
 type Config struct {
-	Address          string
-	Username         string
-	Password         string
-	DisableVerifySSL bool
-	CAs              []string
-	Timeout          time.Duration
-	Debug            bool
-	Logger           resty.Logger
+	Address          string        `json:"address"`
+	Username         string        `json:"username"`
+	Password         string        `json:"password"`
+	DisableVerifySSL bool          `json:"disableVerifySSL"`
+	CAs              []string      `json:"cas"`
+	Timeout          time.Duration `json:"timeout"`
+	Debug            bool          `json:"debug"`
+	Logger           resty.Logger  `json:"-"`
 }
