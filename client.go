@@ -14,6 +14,7 @@ import (
 type Client struct {
 	API    centreonapi.API
 	config *models.Config
+	token  string
 }
 
 // NewDefaultClient init client with empty config
@@ -33,7 +34,7 @@ func NewClient(cfg *models.Config) (*Client, error) {
 		SetTimeout(cfg.Timeout).
 		SetDebug(cfg.Debug).
 		SetCookieJar(nil).
-		SetRetryCount(2).
+		SetRetryCount(1).
 		SetQueryParams(map[string]string{
 			"action": "action",
 			"object": "centreon_clapi",
@@ -59,13 +60,20 @@ func NewClient(cfg *models.Config) (*Client, error) {
 	// handle refresh token when get Unauthorized
 	restyClient.AddRetryCondition(func(r *resty.Response, e error) bool {
 		if r.StatusCode() == http.StatusUnauthorized || r.StatusCode() == http.StatusForbidden {
-			if err := client.API.Auth(); err != nil {
+			token, err := client.API.Auth()
+			if err != nil {
 				logrus.Errorf("Error when refresh token: %s", err.Error())
 				return false
 			}
+			client.token = token
 			return true
 		}
 		return false
+	})
+
+	restyClient.OnBeforeRequest(func(c *resty.Client, r *resty.Request) error {
+		client.API.Client().SetHeader("centreon-auth-token", client.token)
+		return nil
 	})
 
 	return client, nil

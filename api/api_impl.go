@@ -48,7 +48,7 @@ func (api *APIImpl) Client() *resty.Client {
 	return api.client
 }
 
-func (api *APIImpl) Auth() (err error) {
+func (api *APIImpl) Auth() (token string, err error) {
 	resp, err := api.Client().R().
 		SetFormData(map[string]string{
 			"username": api.config.Username,
@@ -60,20 +60,20 @@ func (api *APIImpl) Auth() (err error) {
 		}).
 		Post("")
 	if err != nil {
-		return err
+		return "", err
 	}
 	if resp.StatusCode() >= 300 {
-		return errors.Errorf("Error when signin: %s", resp.Body())
+		return "", errors.Errorf("Error when signin: %s", resp.Body())
 	}
 	result := map[string]string{}
 	if err = json.Unmarshal(resp.Body(), &result); err != nil {
-		return err
+		return "", err
 	}
 	if result["authToken"] == "" {
-		return errors.New("We get an empty token...")
+		return "", errors.New("We get an empty token...")
 	}
 	api.Client().SetHeader("centreon-auth-token", result["authToken"])
 
-	return nil
+	return result["authToken"], nil
 
 }
