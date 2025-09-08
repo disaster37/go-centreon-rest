@@ -2,7 +2,6 @@ package centreonapi
 
 import (
 	"encoding/json"
-	"sync"
 
 	"github.com/disaster37/go-centreon-rest/v21/models"
 	"github.com/go-resty/resty/v2"
@@ -16,7 +15,6 @@ type APIImpl struct {
 	serviceGroup    ServiceGroupAPI
 	client          *resty.Client
 	config          *models.Config
-	mutext          sync.Mutex
 }
 
 // New permit to get API handler
@@ -51,9 +49,6 @@ func (api *APIImpl) Client() *resty.Client {
 }
 
 func (api *APIImpl) Auth() (err error) {
-	// Only one auth to avoid to loop on auth
-	api.mutext.Lock()
-	defer api.mutext.Unlock()
 
 	resp, err := api.Client().R().
 		SetFormData(map[string]string{

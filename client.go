@@ -3,6 +3,8 @@ package centreon
 import (
 	"crypto/tls"
 	"net/http"
+	"sync"
+	"time"
 
 	centreonapi "github.com/disaster37/go-centreon-rest/v21/api"
 	"github.com/disaster37/go-centreon-rest/v21/models"
@@ -34,6 +36,7 @@ func NewClient(cfg *models.Config) (*Client, error) {
 		SetDebug(cfg.Debug).
 		SetCookieJar(nil).
 		SetRetryCount(1).
+		SetRetryWaitTime(time.Second * 1).
 		SetQueryParams(map[string]string{
 			"action": "action",
 			"object": "centreon_clapi",
@@ -56,12 +59,19 @@ func NewClient(cfg *models.Config) (*Client, error) {
 		config: cfg,
 	}
 
+	var mutex sync.Mutex
+
 	// handle refresh token when get Unauthorized
 	restyClient.AddRetryCondition(func(r *resty.Response, e error) bool {
 		if r.StatusCode() == http.StatusUnauthorized || r.StatusCode() == http.StatusForbidden {
-			if err := client.API.Auth(); err != nil {
-				logrus.Errorf("Error when refresh token: %s", err.Error())
-				return false
+			if mutex.TryLock() {
+				defer mutex.Unlock()
+				if err := client.API.Auth(); err != nil {
+					logrus.Errorf("Error when refresh token: %s", err.Error())
+					return false
+				}
+			} else {
+				time.Sleep(1 * time.Second)
 			}
 			return true
 		}
