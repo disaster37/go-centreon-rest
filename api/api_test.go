@@ -66,9 +66,8 @@ func (t *APITestSuite) TestAuth() {
 		}
 		return resp, nil
 	})
-	token, err := t.client.Auth()
+	err := t.client.Auth()
 	assert.NoError(t.T(), err)
 	assert.Equal(t.T(), "password=password&username=user", data)
-	assert.Equal(t.T(), "token", token)
 
 }

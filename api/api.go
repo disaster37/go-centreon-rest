@@ -10,7 +10,7 @@ type API interface {
 	ServiceTemplate() ServiceTemplateAPI
 	ServiceGroup() ServiceGroupAPI
 	Client() *resty.Client
-	Auth() (token string, err error)
+	Auth() (err error)
 }
 
 type serviceBaseAPI interface {

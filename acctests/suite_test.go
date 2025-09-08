@@ -55,10 +55,12 @@ func (t *AccTestSuite) SetupSuite() {
 
 	logrus.Infof("Connect to centreon: %s", url)
 
-	_, err = t.client.API.Auth()
-	if err != nil {
-		panic(err)
-	}
+	/*
+		_, err = t.client.API.Auth()
+		if err != nil {
+			panic(err)
+		}
+	*/
 
 }
 

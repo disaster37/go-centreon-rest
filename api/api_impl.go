@@ -2,6 +2,7 @@ package centreonapi
 
 import (
 	"encoding/json"
+	"sync"
 
 	"github.com/disaster37/go-centreon-rest/v21/models"
 	"github.com/go-resty/resty/v2"
@@ -15,6 +16,7 @@ type APIImpl struct {
 	serviceGroup    ServiceGroupAPI
 	client          *resty.Client
 	config          *models.Config
+	mutext          sync.Mutex
 }
 
 // New permit to get API handler
@@ -48,7 +50,11 @@ func (api *APIImpl) Client() *resty.Client {
 	return api.client
 }
 
-func (api *APIImpl) Auth() (token string, err error) {
+func (api *APIImpl) Auth() (err error) {
+	// Only one auth to avoid to loop on auth
+	api.mutext.Lock()
+	defer api.mutext.Unlock()
+
 	resp, err := api.Client().R().
 		SetFormData(map[string]string{
 			"username": api.config.Username,
@@ -60,20 +66,20 @@ func (api *APIImpl) Auth() (token string, err error) {
 		}).
 		Post("")
 	if err != nil {
-		return "", err
+		return err
 	}
 	if resp.StatusCode() >= 300 {
-		return "", errors.Errorf("Error when signin: %s", resp.Body())
+		return errors.Errorf("Error when signin: %s", resp.Body())
 	}
 	result := map[string]string{}
 	if err = json.Unmarshal(resp.Body(), &result); err != nil {
-		return "", err
+		return err
 	}
 	if result["authToken"] == "" {
-		return "", errors.New("We get an empty token...")
+		return errors.New("We get an empty token...")
 	}
 	api.Client().SetHeader("centreon-auth-token", result["authToken"])
 
-	return result["authToken"], nil
+	return nil
 
 }
