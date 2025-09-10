@@ -9,6 +9,7 @@ import (
 	centreonapi "github.com/disaster37/go-centreon-rest/v21/api"
 	"github.com/disaster37/go-centreon-rest/v21/models"
 	"github.com/go-resty/resty/v2"
+	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -59,9 +60,8 @@ func NewClient(cfg *models.Config) (*Client, error) {
 		config: cfg,
 	}
 
-	var mutex sync.Mutex
-
 	// handle refresh token when get Unauthorized
+	var mutex sync.Mutex
 	restyClient.AddRetryCondition(func(r *resty.Response, e error) bool {
 		if r.StatusCode() == http.StatusUnauthorized || r.StatusCode() == http.StatusForbidden {
 			if mutex.TryLock() {
@@ -77,6 +77,10 @@ func NewClient(cfg *models.Config) (*Client, error) {
 		}
 		return false
 	})
+
+	if err := client.API.Auth(); err != nil {
+		return nil, errors.Wrap(err, "Error when signin")
+	}
 
 	return client, nil
 

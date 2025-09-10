@@ -50,6 +50,12 @@ func (api *APIImpl) Client() *resty.Client {
 
 func (api *APIImpl) Auth() (err error) {
 
+	// Need auth only when use login / password
+	if api.config.Token != "" {
+		api.Client().SetHeader("centreon-auth-token", api.config.Token)
+		return nil
+	}
+
 	resp, err := api.Client().R().
 		SetFormData(map[string]string{
 			"username": api.config.Username,
@@ -73,6 +79,7 @@ func (api *APIImpl) Auth() (err error) {
 	if result["authToken"] == "" {
 		return errors.New("We get an empty token...")
 	}
+
 	api.Client().SetHeader("centreon-auth-token", result["authToken"])
 
 	return nil
