@@ -9,7 +9,6 @@ import (
 	centreonapi "github.com/disaster37/go-centreon-rest/v21/api"
 	"github.com/disaster37/go-centreon-rest/v21/models"
 	"github.com/go-resty/resty/v2"
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -77,10 +76,6 @@ func NewClient(cfg *models.Config) (*Client, error) {
 		}
 		return false
 	})
-
-	if err := client.API.Auth(); err != nil {
-		return nil, errors.Wrap(err, "Error when signin")
-	}
 
 	return client, nil
 

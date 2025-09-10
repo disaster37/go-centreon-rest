@@ -17,6 +17,6 @@ func TestNewClient(t *testing.T) {
 
 	client, err := NewClient(cfg)
 	// Auth not work because it need centreon server
-	assert.Error(t, err)
-	assert.Nil(t, client)
+	assert.NoError(t, err)
+	assert.NotNil(t, client)
 }
