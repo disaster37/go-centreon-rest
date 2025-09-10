@@ -11,6 +11,7 @@ type Config struct {
 	Address          string        `json:"address"`
 	Username         string        `json:"username"`
 	Password         string        `json:"password"`
+	Token            string        `json:"token"`
 	DisableVerifySSL bool          `json:"disableVerifySSL"`
 	CAs              []string      `json:"cas"`
 	Timeout          time.Duration `json:"timeout"`
