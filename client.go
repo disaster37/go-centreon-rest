@@ -59,13 +59,17 @@ func NewClient(cfg *models.Config) (*Client, error) {
 	}
 
 	// handle refresh token when get Unauthorized
+	isRetryAuth := false
 	restyClient.AddRetryCondition(func(r *resty.Response, e error) bool {
-		if r.StatusCode() == http.StatusUnauthorized || r.StatusCode() == http.StatusForbidden {
+		if !isRetryAuth && (r.StatusCode() == http.StatusUnauthorized || r.StatusCode() == http.StatusForbidden) {
+			isRetryAuth = true
+			// Do not use client that retry to avoid infiny loop
 			if err := client.API.Auth(); err != nil {
 				logrus.Errorf("Error when refresh token: %s", err.Error())
-				time.Sleep(1 * time.Second)
+				isRetryAuth = false
 				return true
 			}
+			isRetryAuth = false
 		}
 		return false
 	})
