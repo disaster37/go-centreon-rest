@@ -67,11 +67,13 @@ func NewClient(cfg *models.Config) (*Client, error) {
 			if err := client.API.Auth(); err != nil {
 				logrus.Errorf("Error when refresh token: %s", err.Error())
 				isRetryAuth = false
-				return true
+				return false
 			}
 			isRetryAuth = false
+			return true
+		} else {
+			return false
 		}
-		return false
 	})
 
 	return client, nil
