@@ -14,7 +14,7 @@ import (
 var (
 	username = "admin"
 	password = "f6Uq186LB4kX$"
-	url = "http://localhost:8080/centreon/api/v24.10"
+	url      = "http://localhost:8080/centreon/api/v25.10"
 )
 
 type ApiTestSuite struct {
@@ -28,14 +28,15 @@ func (s *ApiTestSuite) SetupSuite() {
 	// Init logger
 	logrus.SetFormatter(new(prefixed.TextFormatter))
 	logrus.SetLevel(logrus.DebugLevel)
+	logger := logrus.NewEntry(logrus.New())
 
 	restyClient := resty.New().
 		SetBaseURL(url).
 		SetHeader("Content-Type", "application/json").
-		SetDebug(false)
+		SetDebug(true)
 
 	s.client = restyClient
-	s.api = New(s.client)
+	s.api = New(restyClient, logger)
 
 	// Wait Centreon API is ready
 	isOnline := false
@@ -43,11 +44,11 @@ func (s *ApiTestSuite) SetupSuite() {
 	for isOnline == false {
 		_, err := s.api.Authentification().Login(&AuthenticationRequest{
 			Security: AuthenticationRequestSecurity{
-			Credentials: AuthenticationRequestSecurityCredentials{
-				Login: username,
-				Password: password,
+				Credentials: AuthenticationRequestSecurityCredentials{
+					Login:    username,
+					Password: password,
+				},
 			},
-		},
 		})
 		if err == nil {
 			isOnline = true
@@ -60,6 +61,27 @@ func (s *ApiTestSuite) SetupSuite() {
 			nbTry++
 		}
 	}
+
+}
+
+func (s *ApiTestSuite) TearDownSuite() {
+	// Delete test hosts
+	hostResult, err := s.api.Host().GetByName("test2")
+	if err != nil {
+		logrus.Error(err.Error())
+	} else if hostResult != nil {
+		err = s.api.Host().Delete(hostResult.Id)
+		if err != nil {
+			logrus.Error(err.Error())
+		}
+	}
+
+	// Logout
+	_, err = s.api.Authentification().Logout()
+	if err != nil {
+		logrus.Error(err.Error())
+	}
+
 }
 
 func TestApiTestSuite(t *testing.T) {

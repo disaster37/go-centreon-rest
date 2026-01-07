@@ -9,6 +9,7 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/stretchr/testify v1.10.0
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
+	k8s.io/utils v0.0.0-20260106112306-0fe9cd71b2f8
 )
 
 require (

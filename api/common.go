@@ -1,5 +1,11 @@
 package api
 
+import (
+	"encoding/json"
+	"fmt"
+	"time"
+)
+
 // Common response structures for pagination
 type ListResponse[T any] struct {
 	Result []T  `json:"result"`
@@ -49,4 +55,67 @@ type DowntimeRequest struct {
 	IsFixed      *bool  `json:"is_fixed,omitempty"`
 	Duration     *int   `json:"duration,omitempty"`
 	WithServices *bool  `json:"with_services,omitempty"`
+}
+
+type ResponseMessage struct {
+	Code    int64  `json:"code"`
+	Message string `json:"message"`
+}
+
+// IdName represents a simple structure with ID and Name
+type IdName struct {
+	Id   int64  `json:"id"`
+	Name string `json:"name"`
+}
+
+func (h ListOptions) GetQueryParams() map[string]string {
+	params := make(map[string]string)
+
+	if h.Search != nil {
+		b, err := json.Marshal(h.Search)
+		if err != nil {
+			panic(fmt.Sprintf("failed to marshal search parameters: %s", err.Error()))
+		}
+
+		params["search"] = string(b)
+	}
+
+	if h.Page > 0 {
+		params["page"] = fmt.Sprintf("%d", h.Page)
+	}
+
+	if h.Limit > 0 {
+		params["limit"] = fmt.Sprintf("%d", h.Limit)
+	}
+
+	if h.SortBy != nil {
+		b, err := json.Marshal(h.SortBy)
+		if err != nil {
+			panic(fmt.Sprintf("failed to marshal sort_by parameters: %s", err.Error()))
+		}
+
+		params["sort_by"] = string(b)
+	}
+
+	return params
+}
+
+type Timestamp struct {
+	time.Time
+}
+
+// UnmarshalJSON decodes an int64 timestamp into a time.Time object
+func (p *Timestamp) UnmarshalJSON(bytes []byte) error {
+	// 1. Decode the bytes into an int64
+	var raw int64
+	err := json.Unmarshal(bytes, &raw)
+
+	if err != nil {
+		fmt.Printf("error decoding timestamp: %s\n", err)
+		return err
+	}
+
+	// 2. Parse the unix timestamp
+	p.Time = time.Unix(raw, 0)
+	return nil
 }
