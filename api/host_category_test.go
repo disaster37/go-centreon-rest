@@ -2,10 +2,10 @@ package api
 
 import "k8s.io/utils/ptr"
 
-func (s *ApiTestSuite) Test_HostCategory() {
+func (s *ApiTestSuite) TestHostCategoryTest() {
 
 	// Create Host Category
-	hostCategoryToCreate := &HostCategoryUpdateRequest{
+	hostCategoryToCreate := &HostCategoryCreateOrUpdateRequest{
 		Name:        "test2",
 		Alias:       "Test Category Alias",
 		IsActivated: ptr.To(true),
@@ -48,19 +48,19 @@ func (s *ApiTestSuite) Test_HostCategory() {
 
 	// List from real-time
 	// This endpoint seems to always return an empty list
-	_, err = s.api.HostCategory().ListFromRealTime(nil)
+	listFromRealTimeResp, err := s.api.HostCategory().ListFromRealTime(nil)
 	s.NoError(err)
-	//s.NotEmpty(listFromRealTimeResp.Result)
+	s.NotEmpty(listFromRealTimeResp.Result)
 
 	// List from real-time with filter
 	// This endpoint seems to always return an empty list
-	_, err = s.api.HostCategory().ListFromRealTime(&ListOptions{
+	listFromRealTimeWithFilterResp, err := s.api.HostCategory().ListFromRealTime(&ListOptions{
 		Search: map[string]interface{}{
 			"name": "test",
 		},
 	})
 	s.NoError(err)
-	//s.Equal(1, len(listFromRealTimeWithFilterResp.Result))
+	s.Equal(1, len(listFromRealTimeWithFilterResp.Result))
 
 	//Delete Host Category
 	err = s.api.HostCategory().Delete(hostCategoryResponse.Id)

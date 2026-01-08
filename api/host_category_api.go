@@ -10,26 +10,32 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// HostCategoryService defines CRUD operations for Host Category entities
 type HostCategoryService interface {
 	// Create creates a new host category
-	Create(hostCategory *HostCategoryUpdateRequest) (*HostCategoryResponse, error)
+	Create(hostCategory *HostCategoryCreateOrUpdateRequest) (hostCategoryResponse *HostCategoryResponse, err error)
 
 	// Update updates an existing host category
-	Update(id int64, hostCategory *HostCategoryUpdateRequest) error
+	Update(id int64, hostCategory *HostCategoryCreateOrUpdateRequest) (err error)
 
 	// Delete deletes a host category by ID
-	Delete(id int64) error
+	Delete(id int64) (err error)
 
 	// List retrieves host categories with optional filtering and pagination
-	List(opts *ListOptions) (*ListResponse[HostCategoryResponse], error)
+	List(opts *ListOptions) (hostCategoryListResponse *ListResponse[HostCategoryResponse], err error)
 
-	Get(id int64) (*HostCategoryResponse, error)
+	// Get retrieves a host category by its ID
+	Get(id int64) (hostCategoryResponse *HostCategoryResponse, err error)
 
-	GetByName(name string) (*HostCategoryResponse, error)
+	// GetByName retrieves a host category by its Name
+	// It use List method to get the host category
+	GetByName(name string) (hostCategoryResponse *HostCategoryResponse, err error)
 
-	ListFromRealTime(opts *ListOptions) (*ListResponse[HostCategoryResponse], error)
+	// ListFromRealTime retrieves host categories from real-time monitoring data
+	ListFromRealTime(opts *ListOptions) (hostCategoryListResponse *ListResponse[HostCategoryRealTimeResponse], err error)
 }
 
+// DefaultHostCategoryService implements HostCategoryService
 type DefaultHostCategoryService struct {
 	client *resty.Client
 	logger *logrus.Entry
@@ -44,7 +50,7 @@ func NewHostCategoryService(client *resty.Client, logger *logrus.Entry) HostCate
 }
 
 // Create creates a new host category
-func (h *DefaultHostCategoryService) Create(hostCategory *HostCategoryUpdateRequest) (*HostCategoryResponse, error) {
+func (h *DefaultHostCategoryService) Create(hostCategory *HostCategoryCreateOrUpdateRequest) (hostCategoryResponse *HostCategoryResponse, err error) {
 	h.logger.Debugf("Create host category: %+v", hostCategory)
 
 	validate := validator.New(validator.WithRequiredStructEnabled())
@@ -52,7 +58,7 @@ func (h *DefaultHostCategoryService) Create(hostCategory *HostCategoryUpdateRequ
 		return nil, errors.Wrap(err, "validation error on create host category")
 	}
 
-	hostCategoryResponse := new(HostCategoryResponse)
+	hostCategoryResponse = new(HostCategoryResponse)
 
 	response, err := h.client.R().
 		SetBody(hostCategory).
@@ -73,7 +79,7 @@ func (h *DefaultHostCategoryService) Create(hostCategory *HostCategoryUpdateRequ
 }
 
 // Update updates an existing host category
-func (h *DefaultHostCategoryService) Update(id int64, hostCategory *HostCategoryUpdateRequest) error {
+func (h *DefaultHostCategoryService) Update(id int64, hostCategory *HostCategoryCreateOrUpdateRequest) (err error) {
 	h.logger.Debugf("Update host category with Id %d: %+v", id, hostCategory)
 
 	validate := validator.New(validator.WithRequiredStructEnabled())
@@ -100,7 +106,7 @@ func (h *DefaultHostCategoryService) Update(id int64, hostCategory *HostCategory
 }
 
 // Delete deletes a host category by ID
-func (h *DefaultHostCategoryService) Delete(id int64) error {
+func (h *DefaultHostCategoryService) Delete(id int64) (err error) {
 	h.logger.Debugf("Delete host category with Id: %d", id)
 
 	response, err := h.client.R().
@@ -124,18 +130,18 @@ func (h *DefaultHostCategoryService) Delete(id int64) error {
 }
 
 // List retrieves host categories with optional filtering and pagination
-func (h *DefaultHostCategoryService) List(opts *ListOptions) (*ListResponse[HostCategoryResponse], error) {
+func (h *DefaultHostCategoryService) List(opts *ListOptions) (hostCategoryListResponse *ListResponse[HostCategoryResponse], err error) {
 	if opts == nil {
 		opts = &ListOptions{}
 	}
 
 	h.logger.Debugf("List host categories with optionq: %+v", opts)
 
-	listResponse := new(ListResponse[HostCategoryResponse])
+	hostCategoryListResponse = new(ListResponse[HostCategoryResponse])
 
 	response, err := h.client.R().
 		SetQueryParams(opts.GetQueryParams()).
-		SetResult(listResponse).
+		SetResult(hostCategoryListResponse).
 		Get("/configuration/hosts/categories")
 
 	h.logger.Debugf("Response from list host categories: %s", response.String())
@@ -148,17 +154,17 @@ func (h *DefaultHostCategoryService) List(opts *ListOptions) (*ListResponse[Host
 		return nil, errors.Errorf("failed to list host categories, status code: %d, response: %s", response.StatusCode(), response.String())
 	}
 
-	return listResponse, nil
+	return hostCategoryListResponse, nil
 }
 
 // Get retrieves a host category by its ID
-func (h *DefaultHostCategoryService) Get(id int64) (*HostCategoryResponse, error) {
+func (h *DefaultHostCategoryService) Get(id int64) (hostCategoryResponse *HostCategoryResponse, err error) {
 	h.logger.Debugf("Get host category with Id: %d", id)
 
-	hostCategoryReponse := new(HostCategoryResponse)
+	hostCategoryResponse = new(HostCategoryResponse)
 
 	reponse, err := h.client.R().
-		SetResult(hostCategoryReponse).
+		SetResult(hostCategoryResponse).
 		SetPathParam("categoryId", fmt.Sprintf("%d", id)).
 		Get("/configuration/hosts/categories/{categoryId}")
 
@@ -175,14 +181,14 @@ func (h *DefaultHostCategoryService) Get(id int64) (*HostCategoryResponse, error
 		return nil, errors.Errorf("get host category failed with status code: %d", reponse.StatusCode())
 	}
 
-	return hostCategoryReponse, nil
+	return hostCategoryResponse, nil
 }
 
 // GetByName retrieves a host category by its Name
-func (h *DefaultHostCategoryService) GetByName(name string) (*HostCategoryResponse, error) {
+func (h *DefaultHostCategoryService) GetByName(name string) (hostCategoryResponse *HostCategoryResponse, err error) {
 	h.logger.Debugf("Get host category with name: %s", name)
 
-	listResponse, err := h.List(&ListOptions{
+	hostCategoryListResponse, err := h.List(&ListOptions{
 		Search: map[string]interface{}{
 			"name": name,
 		},
@@ -192,26 +198,26 @@ func (h *DefaultHostCategoryService) GetByName(name string) (*HostCategoryRespon
 		return nil, errors.Wrapf(err, "failed to get host category with name %s", name)
 	}
 
-	if listResponse.Meta.Total == 1 {
-		return &listResponse.Result[0], nil
+	if hostCategoryListResponse.Meta.Total == 1 {
+		return &hostCategoryListResponse.Result[0], nil
 	}
 
 	return nil, nil
 }
 
 // ListFromRealTime retrieves host categories from real-time monitoring data
-func (h *DefaultHostCategoryService) ListFromRealTime(opts *ListOptions) (*ListResponse[HostCategoryResponse], error) {
+func (h *DefaultHostCategoryService) ListFromRealTime(opts *ListOptions) (hostCategoryListResponse *ListResponse[HostCategoryRealTimeResponse], err error) {
 	if opts == nil {
 		opts = &ListOptions{}
 	}
 
 	h.logger.Debugf("List real-time host categories with options: %+v", opts)
 
-	listResponse := new(ListResponse[HostCategoryResponse])
+	hostCategoryListResponse = new(ListResponse[HostCategoryRealTimeResponse])
 
 	response, err := h.client.R().
 		SetQueryParams(opts.GetQueryParams()).
-		SetResult(listResponse).
+		SetResult(hostCategoryListResponse).
 		Get("/monitoring/hosts/categories")
 
 	h.logger.Debugf("Response from list real-time host categories: %s", response.String())
@@ -224,5 +230,5 @@ func (h *DefaultHostCategoryService) ListFromRealTime(opts *ListOptions) (*ListR
 		return nil, errors.Errorf("failed to list real-time host categories, status code: %d, response: %s", response.StatusCode(), response.String())
 	}
 
-	return listResponse, nil
+	return hostCategoryListResponse, nil
 }

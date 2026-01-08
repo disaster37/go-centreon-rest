@@ -1,9 +1,9 @@
 package api
 
-func (s *ApiTestSuite) Test_HostSeverity() {
+func (s *ApiTestSuite) TestHostSeverityApi() {
 
 	// Create Host Severity
-	hostSeverityToCreate := &HostSeverityUpdateRequest{
+	hostSeverityToCreate := &HostSeverityCreateOrUpdateRequest{
 		Name:   "test2",
 		Alias:  "Test Host Severity Alias",
 		Level:  1,

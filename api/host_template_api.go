@@ -12,12 +12,25 @@ import (
 
 // HostTemplateService defines CRUD operations for Host Template entities
 type HostTemplateService interface {
-	Get(id int64) (*HostTemplateResponse, error)
-	GetByName(name string) (*HostTemplateResponse, error)
-	Find(opts *ListOptions) (*ListResponse[HostTemplateResponse], error)
-	Create(template *HostTemplateUpdateRequest) (*HostTemplateCreateResponse, error)
-	Update(id int64, template *HostTemplateUpdateRequest) error
-	Delete(id int64) error
+	// Get retrieves a host template by its ID
+	// It use Find method to get the host template
+	Get(id int64) (hostTemplateResponse *HostTemplateResponse, err error)
+
+	// GetByName retrieves a host template by its Name
+	// It use Find method to get the host template
+	GetByName(name string) (hostTemplateResponse *HostTemplateResponse, err error)
+
+	// Find retrieves host templates based on specific criteria
+	Find(opts *ListOptions) (hostTemplateListResponse *ListResponse[HostTemplateResponse], err error)
+
+	// Create adds a new host template
+	Create(template *HostTemplateCreateRequest) (hostTemplateResponse *HostTemplateCreateResponse, err error)
+
+	// Update modifies an existing host template
+	Update(id int64, template *HostTemplateUpdateRequest) (err error)
+
+	// Delete removes a host template by its ID
+	Delete(id int64) (err error)
 }
 
 // DefaultHostTemplateService implements HostTemplateService
@@ -35,11 +48,11 @@ func NewHostTemplateService(client *resty.Client, logger *logrus.Entry) HostTemp
 }
 
 // Get retrieves a host template by its ID
-func (h *DefaultHostTemplateService) Get(id int64) (*HostTemplateResponse, error) {
+func (h *DefaultHostTemplateService) Get(id int64) (hostTemplateResponse *HostTemplateResponse, err error) {
 
 	h.logger.Debugf("Get host template with Id: %d", id)
 
-	listResponse, err := h.Find(&ListOptions{
+	hostTemplateListResponse, err := h.Find(&ListOptions{
 		Search: map[string]interface{}{
 			"id": id,
 		},
@@ -48,19 +61,19 @@ func (h *DefaultHostTemplateService) Get(id int64) (*HostTemplateResponse, error
 		return nil, errors.Wrapf(err, "failed to find host template with id %d", id)
 	}
 
-	if listResponse.Meta.Total == 1 {
-		return &listResponse.Result[0], nil
+	if hostTemplateListResponse.Meta.Total == 1 {
+		return &hostTemplateListResponse.Result[0], nil
 	}
 
 	return nil, nil
 }
 
 // GetByName retrieves a host template by its Name
-func (h *DefaultHostTemplateService) GetByName(name string) (*HostTemplateResponse, error) {
+func (h *DefaultHostTemplateService) GetByName(name string) (hostTemplateResponse *HostTemplateResponse, err error) {
 
 	h.logger.Debugf("Get host template with Name: %s", name)
 
-	listResponse, err := h.Find(&ListOptions{
+	hostTemplateListResponse, err := h.Find(&ListOptions{
 		Search: map[string]interface{}{
 			"name": name,
 		},
@@ -69,15 +82,15 @@ func (h *DefaultHostTemplateService) GetByName(name string) (*HostTemplateRespon
 		return nil, errors.Wrapf(err, "failed to find host template with name %s", name)
 	}
 
-	if listResponse.Meta.Total == 1 {
-		return &listResponse.Result[0], nil
+	if hostTemplateListResponse.Meta.Total == 1 {
+		return &hostTemplateListResponse.Result[0], nil
 	}
 
 	return nil, nil
 }
 
 // Find retrieves host templates based on specific criteria
-func (h *DefaultHostTemplateService) Find(opts *ListOptions) (*ListResponse[HostTemplateResponse], error) {
+func (h *DefaultHostTemplateService) Find(opts *ListOptions) (hostTemplateListResponse *ListResponse[HostTemplateResponse], err error) {
 
 	if opts == nil {
 		opts = &ListOptions{}
@@ -85,11 +98,11 @@ func (h *DefaultHostTemplateService) Find(opts *ListOptions) (*ListResponse[Host
 
 	h.logger.Debugf("Find host templates with options: %+v", opts)
 
-	listResponse := new(ListResponse[HostTemplateResponse])
+	hostTemplateListResponse = new(ListResponse[HostTemplateResponse])
 
 	response, err := h.client.R().
 		SetQueryParams(opts.GetQueryParams()).
-		SetResult(listResponse).
+		SetResult(hostTemplateListResponse).
 		Get("/configuration/hosts/templates")
 
 	h.logger.Debugf("Response from find host templates: %s", response.String())
@@ -103,11 +116,11 @@ func (h *DefaultHostTemplateService) Find(opts *ListOptions) (*ListResponse[Host
 		return nil, errors.Errorf("list hosts templates failed with status code %d and message %s", response.StatusCode(), response.String())
 	}
 
-	return listResponse, nil
+	return hostTemplateListResponse, nil
 }
 
 // Create adds a new host template
-func (h *DefaultHostTemplateService) Create(template *HostTemplateUpdateRequest) (*HostTemplateCreateResponse, error) {
+func (h *DefaultHostTemplateService) Create(template *HostTemplateCreateRequest) (hostTemplateResponse *HostTemplateCreateResponse, err error) {
 
 	h.logger.Debugf("Create host template with data: %+v", template)
 
@@ -116,11 +129,11 @@ func (h *DefaultHostTemplateService) Create(template *HostTemplateUpdateRequest)
 		return nil, errors.Wrap(err, "validation error on create host template")
 	}
 
-	createResponse := new(HostTemplateCreateResponse)
+	hostTemplateResponse = new(HostTemplateCreateResponse)
 
 	response, err := h.client.R().
 		SetBody(template).
-		SetResult(createResponse).
+		SetResult(hostTemplateResponse).
 		Post("/configuration/hosts/templates")
 
 	h.logger.Debugf("Response from create host template: %s", response.String())
@@ -134,11 +147,12 @@ func (h *DefaultHostTemplateService) Create(template *HostTemplateUpdateRequest)
 		return nil, errors.Errorf("create host template failed with status code %d and message %s", response.StatusCode(), response.String())
 	}
 
-	return createResponse, nil
+	return hostTemplateResponse, nil
 }
 
 // Update modifies an existing host template
-func (h *DefaultHostTemplateService) Update(id int64, template *HostTemplateUpdateRequest) error {
+// It will partial update the host template with the provided fields
+func (h *DefaultHostTemplateService) Update(id int64, template *HostTemplateUpdateRequest) (err error) {
 
 	h.logger.Debugf("Update host template with Id %d and data: %+v", id, template)
 
@@ -167,7 +181,7 @@ func (h *DefaultHostTemplateService) Update(id int64, template *HostTemplateUpda
 }
 
 // Delete removes a host template by its ID
-func (h *DefaultHostTemplateService) Delete(id int64) error {
+func (h *DefaultHostTemplateService) Delete(id int64) (err error) {
 
 	h.logger.Debugf("Delete host template with Id: %d", id)
 

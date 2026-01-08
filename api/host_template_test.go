@@ -1,9 +1,11 @@
 package api
 
-func (s *ApiTestSuite) Test_HostTemplate() {
+import "k8s.io/utils/ptr"
+
+func (s *ApiTestSuite) TestHostTemplateApi() {
 
 	// Create Host Template
-	hostTemplateToCreate := &HostTemplateUpdateRequest{
+	hostTemplateToCreate := &HostTemplateCreateRequest{
 		Name:  "test2",
 		Alias: "Test Host Template Alias",
 	}
@@ -13,14 +15,23 @@ func (s *ApiTestSuite) Test_HostTemplate() {
 	s.NotZero(createResp.Id)
 
 	// Update Host Template
-	hostTemplateToCreate.Alias = "Updated Test Host Template Alias"
-	err = s.api.HostTemplate().Update(createResp.Id, hostTemplateToCreate)
+	hostTemplateToUpdate := &HostTemplateUpdateRequest{
+		Alias: ptr.To("Updated Test Host Template Alias"),
+	}
+	err = s.api.HostTemplate().Update(createResp.Id, hostTemplateToUpdate)
 	s.NoError(err)
 
-	// Get Host Template
+	// Get Host Template by id
 	getResp, err := s.api.HostTemplate().Get(createResp.Id)
 	s.NoError(err)
+	s.NotNil(getResp)
 	s.Equal("Updated Test Host Template Alias", getResp.Alias)
+
+	// Get Host Template by name
+	getByNameResp, err := s.api.HostTemplate().GetByName("test2")
+	s.NoError(err)
+	s.NotNil(getByNameResp)
+	s.Equal(createResp.Id, getByNameResp.Id)
 
 	// List all Host Templates and check if the created host template is present
 	listResp, err := s.api.HostTemplate().Find(nil)

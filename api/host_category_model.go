@@ -1,6 +1,7 @@
 package api
 
-type HostCategoryUpdateRequest struct {
+// HostCategoryCreateRequest represents the payload to create a new host category in Centreon.
+type HostCategoryCreateOrUpdateRequest struct {
 	Name        string  `json:"name" validate:"required,max=200"`
 	Alias       string  `json:"alias" validate:"required,max=200"`
 	IsActivated *bool   `json:"is_activated,omitempty"`
@@ -14,4 +15,10 @@ type HostCategoryResponse struct {
 	Alias       string `json:"alias"`
 	IsActivated bool   `json:"is_activated"`
 	Comment     string `json:"comment"`
+}
+
+// HostCategoryRealTimeResponse represents a host category from real-time monitoring data.
+type HostCategoryRealTimeResponse struct {
+	Id   int64  `json:"id"`
+	Name string `json:"name"`
 }

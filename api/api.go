@@ -13,6 +13,7 @@ type API interface {
 	HostCategory() HostCategoryService
 	HostSeverity() HostSeverityService
 	HostTemplate() HostTemplateService
+	HostGroup() HostGroupService
 	/*
 		Acknowledgement() AcknowledgementInterface
 		Command() CommandInterface
@@ -73,4 +74,8 @@ func (h *DefaultAPI) HostCategory() HostCategoryService {
 
 func (h *DefaultAPI) HostSeverity() HostSeverityService {
 	return NewHostSeverityService(h.client, h.logger)
+}
+
+func (h *DefaultAPI) HostGroup() HostGroupService {
+	return NewHostGroupService(h.client, h.logger)
 }

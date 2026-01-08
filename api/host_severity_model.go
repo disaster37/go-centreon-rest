@@ -1,7 +1,7 @@
 package api
 
-// HostSeverityUpdateRequest represents the payload to create or update a host severity.
-type HostSeverityUpdateRequest struct {
+// HostSeverityCreateOrUpdateRequest represents the payload to create or update a host severity in Centreon.
+type HostSeverityCreateOrUpdateRequest struct {
 	Name        string  `json:"name" validate:"required,max=200"`
 	Alias       string  `json:"alias" validate:"required,max=200"`
 	Level       int     `json:"level" validate:"required"`

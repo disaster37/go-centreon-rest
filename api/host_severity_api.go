@@ -13,24 +13,25 @@ import (
 // HostSeverityService defines the interface for managing host severities in Centreon.
 type HostSeverityService interface {
 	// Create creates a new host severity.
-	Create(hostSeverity *HostSeverityUpdateRequest) (*HostSeverityResponse, error)
+	Create(hostSeverity *HostSeverityCreateOrUpdateRequest) (hostSeverityResponse *HostSeverityResponse, err error)
 
 	// Update updates an existing host severity by its ID.
-	Update(id int64, hostSeverity *HostSeverityUpdateRequest) error
+	Update(id int64, hostSeverity *HostSeverityCreateOrUpdateRequest) (err error)
 
 	//Delete deletes a host severity by its ID.
-	Delete(id int64) error
+	Delete(id int64) (err error)
 
 	// Get retrieves a host severity by its ID.
-	Get(id int64) (*HostSeverityResponse, error)
+	Get(id int64) (hostSeverityResponse *HostSeverityResponse, err error)
 
 	// GetByName retrieves a host severity by its Name.
-	GetByName(name string) (*HostSeverityResponse, error)
+	GetByName(name string) (hostSeverityResponse *HostSeverityResponse, err error)
 
 	// List retrieves a list of host severities based on the provided options.
-	List(opts *ListOptions) (*ListResponse[HostSeverityResponse], error)
+	List(opts *ListOptions) (hostSeverityListResponse *ListResponse[HostSeverityResponse], err error)
 }
 
+// DefaultHostSeverityService implements HostSeverityService
 type DefaultHostSeverityService struct {
 	client *resty.Client
 	logger *logrus.Entry
@@ -45,7 +46,7 @@ func NewHostSeverityService(client *resty.Client, logger *logrus.Entry) HostSeve
 }
 
 // Create creates a new host severity.
-func (s *DefaultHostSeverityService) Create(hostSeverity *HostSeverityUpdateRequest) (*HostSeverityResponse, error) {
+func (s *DefaultHostSeverityService) Create(hostSeverity *HostSeverityCreateOrUpdateRequest) (hostSeverityResponse *HostSeverityResponse, err error) {
 	s.logger.Debugf("Create host severity: %+v", hostSeverity)
 
 	validate := validator.New(validator.WithRequiredStructEnabled())
@@ -53,7 +54,7 @@ func (s *DefaultHostSeverityService) Create(hostSeverity *HostSeverityUpdateRequ
 		return nil, errors.Wrap(err, "validation error on create host severity")
 	}
 
-	hostSeverityResponse := new(HostSeverityResponse)
+	hostSeverityResponse = new(HostSeverityResponse)
 
 	response, err := s.client.R().
 		SetBody(hostSeverity).
@@ -74,7 +75,7 @@ func (s *DefaultHostSeverityService) Create(hostSeverity *HostSeverityUpdateRequ
 }
 
 // Delete deletes a host severity by its ID.
-func (s *DefaultHostSeverityService) Delete(id int64) error {
+func (s *DefaultHostSeverityService) Delete(id int64) (err error) {
 	s.logger.Debugf("Delete host severity with Id: %d", id)
 
 	response, err := s.client.R().
@@ -98,13 +99,13 @@ func (s *DefaultHostSeverityService) Delete(id int64) error {
 }
 
 // Get retrieves a host severity by its ID.
-func (s *DefaultHostSeverityService) Get(id int64) (*HostSeverityResponse, error) {
+func (s *DefaultHostSeverityService) Get(id int64) (hostSeverityResponse *HostSeverityResponse, err error) {
 	s.logger.Debugf("Get host severity with Id: %d", id)
 
-	responseStruct := new(HostSeverityResponse)
+	hostSeverityResponse = new(HostSeverityResponse)
 
 	response, err := s.client.R().
-		SetResult(responseStruct).
+		SetResult(hostSeverityResponse).
 		SetPathParam("severityId", fmt.Sprintf("%d", id)).
 		Get("/configuration/hosts/severities/{severityId}")
 
@@ -121,11 +122,11 @@ func (s *DefaultHostSeverityService) Get(id int64) (*HostSeverityResponse, error
 		return nil, errors.Errorf("get host severity failed with status code: %d", response.StatusCode())
 	}
 
-	return responseStruct, nil
+	return hostSeverityResponse, nil
 }
 
 // GetByName retrieves a host severity by its Name.
-func (s *DefaultHostSeverityService) GetByName(name string) (*HostSeverityResponse, error) {
+func (s *DefaultHostSeverityService) GetByName(name string) (hostSeverityResponse *HostSeverityResponse, err error) {
 	s.logger.Debugf("Get host severity with name: %s", name)
 
 	listResponse, err := s.List(&ListOptions{
@@ -146,18 +147,18 @@ func (s *DefaultHostSeverityService) GetByName(name string) (*HostSeverityRespon
 }
 
 // List retrieves a list of host severities based on the provided options.
-func (s *DefaultHostSeverityService) List(opts *ListOptions) (*ListResponse[HostSeverityResponse], error) {
+func (s *DefaultHostSeverityService) List(opts *ListOptions) (hostSeverityListResponse *ListResponse[HostSeverityResponse], err error) {
 	if opts == nil {
 		opts = &ListOptions{}
 	}
 
 	s.logger.Debugf("List host severities with options: %+v", opts)
 
-	listResponse := new(ListResponse[HostSeverityResponse])
+	hostSeverityListResponse = new(ListResponse[HostSeverityResponse])
 
 	response, err := s.client.R().
 		SetQueryParams(opts.GetQueryParams()).
-		SetResult(listResponse).
+		SetResult(hostSeverityListResponse).
 		Get("/configuration/hosts/severities")
 
 	s.logger.Debugf("Response from list host severities: %s", response.String())
@@ -170,11 +171,11 @@ func (s *DefaultHostSeverityService) List(opts *ListOptions) (*ListResponse[Host
 		return nil, errors.Errorf("failed to list host severities, status code: %d, response: %s", response.StatusCode(), response.String())
 	}
 
-	return listResponse, nil
+	return hostSeverityListResponse, nil
 }
 
 // Update updates an existing host severity by its ID.
-func (h *DefaultHostSeverityService) Update(id int64, hostSeverity *HostSeverityUpdateRequest) error {
+func (h *DefaultHostSeverityService) Update(id int64, hostSeverity *HostSeverityCreateOrUpdateRequest) (err error) {
 	h.logger.Debugf("Update host severity with Id: %d, Data: %+v", id, hostSeverity)
 
 	validate := validator.New(validator.WithRequiredStructEnabled())
