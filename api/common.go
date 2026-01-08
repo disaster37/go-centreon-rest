@@ -100,6 +100,7 @@ func (h ListOptions) GetQueryParams() map[string]string {
 	return params
 }
 
+// Timestamp is a custom type to handle Unix timestamp unmarshalling
 type Timestamp struct {
 	time.Time
 }

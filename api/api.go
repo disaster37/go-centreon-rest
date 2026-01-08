@@ -14,6 +14,9 @@ type API interface {
 	HostSeverity() HostSeverityService
 	HostTemplate() HostTemplateService
 	HostGroup() HostGroupService
+	Media() MediaService
+	Command() CommandService
+	TimePeriod() TimePeriodService
 	/*
 		Acknowledgement() AcknowledgementInterface
 		Command() CommandInterface
@@ -78,4 +81,16 @@ func (h *DefaultAPI) HostSeverity() HostSeverityService {
 
 func (h *DefaultAPI) HostGroup() HostGroupService {
 	return NewHostGroupService(h.client, h.logger)
+}
+
+func (h *DefaultAPI) Media() MediaService {
+	return NewMediaService(h.client, h.logger)
+}
+
+func (h *DefaultAPI) Command() CommandService {
+	return NewCommandService(h.client, h.logger)
+}
+
+func (h *DefaultAPI) TimePeriod() TimePeriodService {
+	return NewTimePeriodService(h.client, h.logger)
 }

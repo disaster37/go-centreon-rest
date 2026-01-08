@@ -108,7 +108,6 @@ func (h *DefaultHostTemplateService) Find(opts *ListOptions) (hostTemplateListRe
 	h.logger.Debugf("Response from find host templates: %s", response.String())
 
 	if err != nil {
-		h.logger.Errorf("Error while finding host templates: %v", err)
 		return nil, errors.Wrap(err, "error during find host templates request")
 	}
 
@@ -139,7 +138,6 @@ func (h *DefaultHostTemplateService) Create(template *HostTemplateCreateRequest)
 	h.logger.Debugf("Response from create host template: %s", response.String())
 
 	if err != nil {
-		h.logger.Errorf("Error while creating host template: %v", err)
 		return nil, errors.Wrap(err, "error during create host template request")
 	}
 
@@ -169,7 +167,6 @@ func (h *DefaultHostTemplateService) Update(id int64, template *HostTemplateUpda
 	h.logger.Debugf("Response from update host template: %s", response.String())
 
 	if err != nil {
-		h.logger.Errorf("Error while updating host template: %v", err)
 		return errors.Wrap(err, "error during update host template request")
 	}
 
@@ -192,7 +189,6 @@ func (h *DefaultHostTemplateService) Delete(id int64) (err error) {
 	h.logger.Debugf("Response from delete host template: %s", response.String())
 
 	if err != nil {
-		h.logger.Errorf("Error while deleting host template: %v", err)
 		return errors.Wrap(err, "error during delete host template request")
 	}
 

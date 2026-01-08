@@ -61,3 +61,24 @@ This project provide a native API call and a handler  to manage Centreon object 
 - [] Enable/disable multiple host groups
 - [] List all host groups by host id
 - [X] List host group from real time API
+
+**Media**:
+- [X] Create media
+- [X] Update media
+- [] Delete media: Method not allowed in Centreon Rest API v2.
+- [X] Get media: The endpoint not exist in Centreon Rest API v2. We use Find instead.
+- [X] Find media
+
+**Command**:
+- [X] Create command
+- [] Update command. Not implemented in Centreon Rest API v2.
+- [] Delete command: Not implemented in Centreon Rest API v2.
+- [X] Get command
+- [X] Find command
+
+**Time period**:
+- [X] Create time period
+- [X] Update time period
+- [X] Delete time period
+- [X] Get time period
+- [X] List time period
