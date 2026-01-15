@@ -128,3 +128,12 @@ func (p *Timestamp) UnmarshalJSON(bytes []byte) error {
 	p.Time = time.Unix(raw, 0)
 	return nil
 }
+
+// HostState is the host state
+type HostState int
+
+const (
+	HostStateUp          HostState = 0
+	HostStateDown        HostState = 1
+	HostStateUnreachable HostState = 2
+)

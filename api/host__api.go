@@ -13,7 +13,7 @@ import (
 // HostService defines CRUD operations for Host entities
 type HostService interface {
 	// Create creates a new host
-	Create(host *HostCreateRequest) (hostCreateResponse *HostCreateResponse, err error)
+	Create(host *HostCreateRequest) (hostCreateResponse *HostResponse, err error)
 
 	// Update updates an existing host
 	Update(id int64, host *HostUpdateRequest) (err error)
@@ -22,25 +22,25 @@ type HostService interface {
 	Delete(id int64) (err error)
 
 	// Find retrieves hosts based on specific criteria
-	Find(opts *ListOptions) (hostListResponse *ListResponse[HostFindResult], err error)
+	Find(opts *ListOptions) (hostListResponse *ListResponse[HostFindResponse], err error)
 
 	// Get retrieves a host by its ID
-	Get(id int64) (hostResponse *HostFindResult, err error)
+	Get(id int64) (hostResponse *HostResponse, err error)
 
 	// GetByName retrieves a host by its Name
-	GetByName(name string) (hostResponse *HostFindResult, err error)
+	GetByName(name string) (hostResponse *HostFindResponse, err error)
 
 	// GetFromRealTime retrieves a host by its ID
 	// It use monitoring API to get host details
-	GetFromRealTime(id int64) (hostResponse *HostResponse, err error)
+	GetFromRealTime(id int64) (hostResponse *HostRealTimeResponse, err error)
 
 	// GetByNameFromRealTime retrieves a host by its name
 	// It use monitoring API to get host details
-	GetByNameFromRealTime(name string) (hostResponse *HostResponse, err error)
+	GetByNameFromRealTime(name string) (hostResponse *HostRealTimeResponse, err error)
 
 	// ListFromRealTime retrieves hosts with optional filtering and pagination
 	// It use monitoring API to list hosts
-	ListFromRealTime(opts *HostListOptions) (hostListResponse *ListResponse[HostResponse], err error)
+	ListFromRealTime(opts *HostListOptions) (hostListResponse *ListResponse[HostRealTimeResponse], err error)
 
 	// CountHostsByStatusFromRealTime retrieves count of hosts by their status
 	// It use monitoring API to get host status counts
@@ -62,7 +62,7 @@ func NewHostService(client *resty.Client, logger *logrus.Entry) HostService {
 }
 
 // Create creates a new host
-func (h *DefaultHostService) Create(host *HostCreateRequest) (hostCreateResponse *HostCreateResponse, err error) {
+func (h *DefaultHostService) Create(host *HostCreateRequest) (hostCreateResponse *HostResponse, err error) {
 
 	h.logger.Debugf("Create Host: %+v", host)
 
@@ -71,7 +71,7 @@ func (h *DefaultHostService) Create(host *HostCreateRequest) (hostCreateResponse
 		return nil, errors.Wrap(err, "validation error on create host")
 	}
 
-	hostCreateResponse = new(HostCreateResponse)
+	hostCreateResponse = new(HostResponse)
 
 	response, err := h.client.R().
 		SetResult(hostCreateResponse).
@@ -147,14 +147,14 @@ func (h *DefaultHostService) Delete(id int64) (err error) {
 }
 
 // Find retrieves hosts based on specific criteria
-func (h *DefaultHostService) Find(opts *ListOptions) (hostListResponse *ListResponse[HostFindResult], err error) {
+func (h *DefaultHostService) Find(opts *ListOptions) (hostListResponse *ListResponse[HostFindResponse], err error) {
 	if opts == nil {
 		opts = &ListOptions{}
 	}
 
 	h.logger.Debugf("Find hosts with options: %+v", opts)
 
-	hostListResponse = new(ListResponse[HostFindResult])
+	hostListResponse = new(ListResponse[HostFindResponse])
 
 	response, err := h.client.R().
 		SetResult(hostListResponse).
@@ -175,27 +175,35 @@ func (h *DefaultHostService) Find(opts *ListOptions) (hostListResponse *ListResp
 }
 
 // Get retrieves a host by its ID
-func (h *DefaultHostService) Get(id int64) (hostResponse *HostFindResult, err error) {
+// Need PR https://github.com/centreon/centreon/pull/9335
+func (h *DefaultHostService) Get(id int64) (hostResponse *HostResponse, err error) {
 	h.logger.Debugf("Get host with Id: %d", id)
 
-	hostListResponse, err := h.Find(&ListOptions{
-		Search: map[string]interface{}{
-			"id": id,
-		},
-	})
+	hostResponse = new(HostResponse)
+
+	response, err := h.client.R().
+		SetResult(hostResponse).
+		SetPathParam("hostId", fmt.Sprintf("%d", id)).
+		Get("/configuration/hosts/{hostId}")
+
+	h.logger.Debugf("Response from get host: %s", response.String())
+
 	if err != nil {
-		return nil, errors.Wrap(err, "error during find host by ID")
+		return nil, errors.Wrap(err, "error during get host request")
 	}
 
-	if hostListResponse.Meta.Total == 1 {
-		return &hostListResponse.Result[0], nil
+	if response.IsError() {
+		if response.StatusCode() == http.StatusNotFound {
+			return nil, nil
+		}
+		return nil, errors.Errorf("get host failed with status code: %d", response.StatusCode())
 	}
 
-	return nil, nil
+	return hostResponse, nil
 }
 
 // GetByName retrieves a host by its name
-func (h *DefaultHostService) GetByName(name string) (hostResponse *HostFindResult, err error) {
+func (h *DefaultHostService) GetByName(name string) (hostResponse *HostFindResponse, err error) {
 	h.logger.Debugf("Get host with name: %s", name)
 
 	hostListResponse, err := h.Find(&ListOptions{
@@ -215,11 +223,11 @@ func (h *DefaultHostService) GetByName(name string) (hostResponse *HostFindResul
 }
 
 // GetFromRealTime retrieves a host by its ID
-func (h *DefaultHostService) GetFromRealTime(id int64) (hostResponse *HostResponse, err error) {
+func (h *DefaultHostService) GetFromRealTime(id int64) (hostResponse *HostRealTimeResponse, err error) {
 
 	h.logger.Debugf("Get host with Id: %d", id)
 
-	hostResponse = new(HostResponse)
+	hostResponse = new(HostRealTimeResponse)
 
 	response, err := h.client.R().
 		SetResult(hostResponse).
@@ -243,7 +251,7 @@ func (h *DefaultHostService) GetFromRealTime(id int64) (hostResponse *HostRespon
 }
 
 // GetByNameFromRealTime retrieves a host by its name
-func (h *DefaultHostService) GetByNameFromRealTime(name string) (hostResponse *HostResponse, err error) {
+func (h *DefaultHostService) GetByNameFromRealTime(name string) (hostResponse *HostRealTimeResponse, err error) {
 
 	h.logger.Debugf("Get host with name: %s", name)
 
@@ -267,7 +275,7 @@ func (h *DefaultHostService) GetByNameFromRealTime(name string) (hostResponse *H
 }
 
 // List retrieves hosts with optional filtering and pagination
-func (h *DefaultHostService) ListFromRealTime(opts *HostListOptions) (*ListResponse[HostResponse], error) {
+func (h *DefaultHostService) ListFromRealTime(opts *HostListOptions) (*ListResponse[HostRealTimeResponse], error) {
 
 	if opts == nil {
 		opts = &HostListOptions{}
@@ -275,7 +283,7 @@ func (h *DefaultHostService) ListFromRealTime(opts *HostListOptions) (*ListRespo
 
 	h.logger.Debugf("List hosts with options: %+v", opts)
 
-	hostListResponse := new(ListResponse[HostResponse])
+	hostListResponse := new(ListResponse[HostRealTimeResponse])
 
 	response, err := h.client.R().
 		SetResult(hostListResponse).

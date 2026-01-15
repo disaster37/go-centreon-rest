@@ -7,14 +7,18 @@
 The response forget the following fields:
 - snmp_community
 
+> We need PR https://github.com/centreon/centreon/pull/9335
+
 
 ### Get
 
 Method not allowed. No way to get all fields for a given host from configuration/host API
 
+> We need PR https://github.com/centreon/centreon/pull/9335
+
 ### Get from real time api
 
-"last_hard_state": 1 is integer not datetime string
+"last_hard_state": 1 is the hard state, not a date like say a doc.
 
 ---
 
@@ -36,9 +40,15 @@ List with filter not working. Always return empty list.
 
 ## Media
 
+### Get
+
+Method not allowed. No way to get all fields for a given media from configuration/media API
+Need PR https://github.com/centreon/centreon/pull/9329
+
 ### Delete
 
 Method not allowed. No way to delete media from configuration/media API
+Need PR https://github.com/centreon/centreon/pull/9329
 
 ---
 

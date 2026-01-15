@@ -111,8 +111,8 @@ type HostUpdateRequest struct {
 	Macros                    []Macro      `json:"macros,omitempty"`
 }
 
-// HostUpdateResponse represents the response after creating or updating a host in Centreon.
-type HostCreateResponse struct {
+// HostResponse represents the response after creating or updating a host in Centreon.
+type HostResponse struct {
 	Id                        int64        `json:"id"`
 	Name                      string       `json:"name"`
 	Alias                     string       `json:"alias,omitempty"`
@@ -161,14 +161,14 @@ type HostCreateResponse struct {
 	Macros                    []Macro      `json:"macros,omitempty"`
 }
 
-// Host represents a monitored host in Centreon infrastructure monitoring.
+// HostRealTimeResponse represents a monitored host in Centreon infrastructure monitoring.
 // https://docs-api.centreon.com/api/centreon-web/25.10/#tag/Host/paths/~1monitoring~1hosts~1%7Bhost_id%7D/get
-type HostResponse struct {
+type HostRealTimeResponse struct {
 	Id                     int64                       `json:"id"`
 	Alias                  string                      `json:"alias"`
 	DisplayName            string                      `json:"display_name"`
 	Name                   string                      `json:"name"`
-	State                  int                         `json:"state"`
+	State                  HostState                   `json:"state"`
 	Services               []HostServiceResponse       `json:"services"`
 	PollerID               int64                       `json:"poller_id"`
 	Acknowledged           bool                        `json:"acknowledged"`
@@ -197,7 +197,7 @@ type HostResponse struct {
 	CheckInterval          float64                     `json:"check_interval"`
 	CheckPeriod            string                      `json:"check_period"`
 	CheckType              int                         `json:"check_type"`
-	LastHardState          *int64                      `json:"last_hard_state"`
+	LastHardState          *HostState                  `json:"last_hard_state"`
 	LastNotification       *time.Time                  `json:"last_notification"`
 	Latency                float64                     `json:"latency"`
 	NextCheck              *time.Time                  `json:"next_check"`
@@ -308,8 +308,8 @@ func (h HostListOptions) GetQueryParams() map[string]string {
 	return params
 }
 
-// HostFindResult represents a host found via the HostService Find method.
-type HostFindResult struct {
+// HostFindResponse represents a host found via the HostService Find method.
+type HostFindResponse struct {
 	Id                     int64    `json:"id"`
 	Name                   string   `json:"name"`
 	Alias                  string   `json:"alias"`
