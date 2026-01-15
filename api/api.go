@@ -17,6 +17,7 @@ type API interface {
 	Media() MediaService
 	Command() CommandService
 	TimePeriod() TimePeriodService
+	Service() ServiceService
 	/*
 		Acknowledgement() AcknowledgementInterface
 		Command() CommandInterface
@@ -93,4 +94,8 @@ func (h *DefaultAPI) Command() CommandService {
 
 func (h *DefaultAPI) TimePeriod() TimePeriodService {
 	return NewTimePeriodService(h.client, h.logger)
+}
+
+func (h *DefaultAPI) Service() ServiceService {
+	return NewServiceService(h.client, h.logger)
 }

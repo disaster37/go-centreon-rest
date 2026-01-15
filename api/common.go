@@ -68,6 +68,14 @@ type IdName struct {
 	Name string `json:"name"`
 }
 
+// Macro represents a macro definition in Centreon.
+type Macro struct {
+	Name        string  `json:"name" validate:"required"`
+	Value       *string `json:"value,omitempty"`
+	IsPassword  *bool   `json:"is_password,omitempty"`
+	Description *string `json:"description,omitempty"`
+}
+
 func (h ListOptions) GetQueryParams() map[string]string {
 	params := make(map[string]string)
 

@@ -53,7 +53,7 @@ type HostCreateRequest struct {
 	IsActivated               *bool        `json:"is_activated,omitempty"`
 	Categories                []int64      `json:"categories,omitempty"`
 	Groups                    []int64      `json:"groups,omitempty"`
-	Macros                    []HostMacro  `json:"macros,omitempty"`
+	Macros                    []Macro      `json:"macros,omitempty"`
 }
 
 // String returns the string representation of the HostCreateRequest.
@@ -108,15 +108,7 @@ type HostUpdateRequest struct {
 	IsActivated               *bool        `json:"is_activated,omitempty"`
 	Categories                []int64      `json:"categories,omitempty"`
 	Groups                    []int64      `json:"groups,omitempty"`
-	Macros                    []HostMacro  `json:"macros,omitempty"`
-}
-
-// HostMacros represents a macro definition for a host in Centreon.
-type HostMacro struct {
-	Name        string  `json:"name" validate:"required"`
-	Value       *string `json:"value,omitempty"`
-	IsPassword  *bool   `json:"is_password,omitempty"`
-	Description *string `json:"description,omitempty"`
+	Macros                    []Macro      `json:"macros,omitempty"`
 }
 
 // HostUpdateResponse represents the response after creating or updating a host in Centreon.
@@ -150,10 +142,10 @@ type HostCreateResponse struct {
 	AcknowledgementTimeout    *int         `json:"acknowledgement_timeout,omitempty"`
 	FreshnessChecked          *CheckState  `json:"freshness_checked,omitempty"`
 	FreshnessThreshold        *int         `json:"freshness_threshold,omitempty"`
-	FlapDetectionEnabled      *CheckState         `json:"flap_detection_enabled,omitempty"`
+	FlapDetectionEnabled      *CheckState  `json:"flap_detection_enabled,omitempty"`
 	LowFlapThreshold          *int         `json:"low_flap_threshold,omitempty"`
 	HighFlapThreshold         *int         `json:"high_flap_threshold,omitempty"`
-	EventHandlerEnabled       *CheckState         `json:"event_handler_enabled,omitempty"`
+	EventHandlerEnabled       *CheckState  `json:"event_handler_enabled,omitempty"`
 	EventHandlerCommandId     *int64       `json:"event_handler_command_id,omitempty"`
 	EventHandlerCommandArgs   []string     `json:"event_handler_command_args,omitempty"`
 	NoteUrl                   *string      `json:"note_url,omitempty"`
@@ -166,7 +158,7 @@ type HostCreateResponse struct {
 	Categories                []IdName     `json:"categories,omitempty"`
 	Groups                    []IdName     `json:"groups,omitempty"`
 	Templates                 []IdName     `json:"templates,omitempty"`
-	Macros                    []HostMacro  `json:"macros,omitempty"`
+	Macros                    []Macro      `json:"macros,omitempty"`
 }
 
 // Host represents a monitored host in Centreon infrastructure monitoring.

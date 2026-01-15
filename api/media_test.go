@@ -20,14 +20,15 @@ func (s *ApiTestSuite) TestMediaApi() {
 	s.NotZero(createResp.Result[0].Id)
 
 	// Update Media
-	err = s.api.Media().Update(createResp.Result[0].Id, mediaToCreate.Name, mediaToCreate.Data)
+	updateResp, err := s.api.Media().Update(createResp.Result[0].Id, mediaToCreate.Name, mediaToCreate.Data)
 	s.NoError(err)
+	s.NotNil(updateResp)
 
 	// Get Media by id
 	getResp, err := s.api.Media().Get(createResp.Result[0].Id)
 	s.NoError(err)
 	s.NotNil(getResp)
-	s.Equal("test2.png", getResp.Name)
+	s.Equal("test2.png", getResp.Filename)
 
 	// Get Media by name
 	getByNameResp, err := s.api.Media().GetByName("test2.png")
@@ -50,7 +51,7 @@ func (s *ApiTestSuite) TestMediaApi() {
 	s.Equal(1, len(listRespWithFilter.Result))
 
 	//Delete Media
-	//err = s.api.Media().Delete(createResp.Result[0].Id)
-	//s.NoError(err)
+	err = s.api.Media().Delete(createResp.Result[0].Id)
+	s.NoError(err)
 
 }

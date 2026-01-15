@@ -85,7 +85,7 @@ type HostTemplateCreateRequest struct {
 	Comment                   *string      `json:"comment,omitempty"`
 	Categories                []int64      `json:"categories,omitempty"`
 	Templates                 []int64      `json:"templates,omitempty"`
-	Macros                    []HostMacro  `json:"macros,omitempty"`
+	Macros                    []Macro      `json:"macros,omitempty"`
 }
 
 // HostTemplateCreateResponse represents the response after creating a host template in Centreon.
@@ -103,9 +103,9 @@ type HostTemplateCreateResponse struct {
 	MaxCheckAttempts          *int         `json:"max_check_attempts"`
 	NormalCheckInterval       *int         `json:"normal_check_interval"`
 	RetryCheckInterval        *int         `json:"retry_check_interval"`
-	ActiveCheckEnabled        CheckState          `json:"active_check_enabled"`
-	PassiveCheckEnabled       CheckState          `json:"passive_check_enabled"`
-	NotificationEnabled       CheckState          `json:"notification_enabled"`
+	ActiveCheckEnabled        CheckState   `json:"active_check_enabled"`
+	PassiveCheckEnabled       CheckState   `json:"passive_check_enabled"`
+	NotificationEnabled       CheckState   `json:"notification_enabled"`
 	NotificationOptions       *int         `json:"notification_options"`
 	NotificationInterval      *int         `json:"notification_interval"`
 	NotificationTimeperiodId  *int64       `json:"notification_timeperiod_id"`
@@ -114,12 +114,12 @@ type HostTemplateCreateResponse struct {
 	FirstNotificationDelay    *int         `json:"first_notification_delay"`
 	RecoveryNotificationDelay *int         `json:"recovery_notification_delay"`
 	AcknowledgementTimeout    *int         `json:"acknowledgement_timeout"`
-	FreshnessChecked          CheckState          `json:"freshness_checked"`
+	FreshnessChecked          CheckState   `json:"freshness_checked"`
 	FreshnessThreshold        *int         `json:"freshness_threshold"`
-	FlapDetectionEnabled      CheckState          `json:"flap_detection_enabled"`
+	FlapDetectionEnabled      CheckState   `json:"flap_detection_enabled"`
 	LowFlapThreshold          *int         `json:"low_flap_threshold"`
 	HighFlapThreshold         *int         `json:"high_flap_threshold"`
-	EventHandlerEnabled       CheckState          `json:"event_handler_enabled"`
+	EventHandlerEnabled       CheckState   `json:"event_handler_enabled"`
 	EventHandlerCommandId     *int64       `json:"event_handler_command_id"`
 	EventHandlerCommandArgs   []string     `json:"event_handler_command_args"`
 	NoteUrl                   *string      `json:"note_url"`
@@ -131,7 +131,7 @@ type HostTemplateCreateResponse struct {
 	IsLocked                  bool         `json:"is_locked"`
 	Categories                []int64      `json:"categories"`
 	Templates                 []int64      `json:"templates"`
-	Macros                    []HostMacro  `json:"macros"`
+	Macros                    []Macro      `json:"macros"`
 }
 
 // HostTemplateUpdateRequest represents the payload to update a host template in Centreon.
@@ -176,5 +176,5 @@ type HostTemplateUpdateRequest struct {
 	Comment                   *string      `json:"comment,omitempty"`
 	Categories                []int64      `json:"categories,omitempty"`
 	Templates                 []int64      `json:"templates,omitempty"`
-	Macros                    []HostMacro  `json:"macros,omitempty"`
+	Macros                    []Macro      `json:"macros,omitempty"`
 }
