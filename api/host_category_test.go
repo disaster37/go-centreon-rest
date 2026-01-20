@@ -30,30 +30,25 @@ func (s *ApiTestSuite) TestHostCategoryTest() {
 	s.NotEmpty(listResp.Result)
 
 	// List Host Categories with filter
-	// The filter does not seem to work as expected, always returns an empty list
-	_, err = s.api.HostCategory().List(&ListOptions{
+	listRespWithFilter, err := s.api.HostCategory().List(&ListOptions{
 		Search: map[string]interface{}{
 			"name": "test2",
 		},
 	})
 	s.NoError(err)
-	//s.Equal(1, len(listRespWithFilter.Result))
+	s.Equal(1, len(listRespWithFilter.Result))
 
 	// Get by name
-	// This method call the List method internally, but this API seems to not work as expected
-	// It always return nil
-	_, err = s.api.HostCategory().GetByName("test2")
+	getByNameResp, err := s.api.HostCategory().GetByName("test2")
 	s.NoError(err)
-	//s.NotNil(getByNameResp)
+	s.NotNil(getByNameResp)
 
 	// List from real-time
-	// This endpoint seems to always return an empty list
 	listFromRealTimeResp, err := s.api.HostCategory().ListFromRealTime(nil)
 	s.NoError(err)
 	s.NotEmpty(listFromRealTimeResp.Result)
 
 	// List from real-time with filter
-	// This endpoint seems to always return an empty list
 	listFromRealTimeWithFilterResp, err := s.api.HostCategory().ListFromRealTime(&ListOptions{
 		Search: map[string]interface{}{
 			"name": "test",

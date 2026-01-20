@@ -3,7 +3,7 @@ package api
 func (s *ApiTestSuite) TestCommandApi() {
 
 	// Create Command
-	commandToCreate := &CommandCreateRequest{
+	commandToCreate := &CommandCreateOrUpdateRequest{
 		Name:        "test2",
 		Type:        CommandTypeCheck,
 		CommandLine: "/usr/bin/test_command",
@@ -14,10 +14,16 @@ func (s *ApiTestSuite) TestCommandApi() {
 	s.NotNil(createResp)
 	s.NotZero(createResp.Id)
 
+	// Update Command
+	commandToCreate.CommandLine = "/usr/bin/updated_test_command"
+	err = s.api.Command().Update(createResp.Id, commandToCreate)
+	s.NoError(err)
+
 	// Get Command
 	getResp, err := s.api.Command().Get(createResp.Id)
 	s.NoError(err)
 	s.NotNil(getResp)
+	s.Equal("test2", getResp.Name)
 
 	// Get by name
 	getByNameResp, err := s.api.Command().GetByName("test2")
@@ -38,5 +44,9 @@ func (s *ApiTestSuite) TestCommandApi() {
 	})
 	s.NoError(err)
 	s.Equal(1, len(listRespWithFilter.Result))
+
+	// Delete Command
+	err = s.api.Command().Delete(createResp.Id)
+	s.NoError(err)
 
 }

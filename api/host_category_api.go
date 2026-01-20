@@ -22,6 +22,7 @@ type HostCategoryService interface {
 	Delete(id int64) (err error)
 
 	// List retrieves host categories with optional filtering and pagination
+	// Need develop branch. Not working on 25.10
 	List(opts *ListOptions) (hostCategoryListResponse *ListResponse[HostCategoryResponse], err error)
 
 	// Get retrieves a host category by its ID
@@ -29,6 +30,7 @@ type HostCategoryService interface {
 
 	// GetByName retrieves a host category by its Name
 	// It use List method to get the host category
+	// Need develop branch. Not working on 25.10
 	GetByName(name string) (hostCategoryResponse *HostCategoryResponse, err error)
 
 	// ListFromRealTime retrieves host categories from real-time monitoring data

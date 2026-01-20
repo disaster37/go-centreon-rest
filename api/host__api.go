@@ -25,6 +25,7 @@ type HostService interface {
 	Find(opts *ListOptions) (hostListResponse *ListResponse[HostFindResponse], err error)
 
 	// Get retrieves a host by its ID
+	// Need PR https://github.com/centreon/centreon/pull/9335
 	Get(id int64) (hostResponse *HostResponse, err error)
 
 	// GetByName retrieves a host by its Name

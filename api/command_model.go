@@ -9,8 +9,8 @@ const (
 	CommandTypeDiscovery     CommandType = 4
 )
 
-// CommandCreateRequest represents the payload to create a new command in Centreon.
-type CommandCreateRequest struct {
+// CommandCreateOrUpdateRequest represents the payload to create or update a command in Centreon.
+type CommandCreateOrUpdateRequest struct {
 	Name            string            `json:"name" validate:"required"`
 	Type            CommandType       `json:"type" validate:"required,oneof=1 2 3 4"`
 	CommandLine     string            `json:"command_line" validate:"required"`
@@ -35,8 +35,8 @@ type CommandMacro struct {
 	Description string `json:"description" validate:"required"`
 }
 
-// CommandCreateResponse represents the response after creating a command in Centreon.
-type CommandCreateResponse struct {
+// CommandResponse represents the command in Centreon.
+type CommandResponse struct {
 	Id              int64             `json:"id"`
 	Name            string            `json:"name"`
 	Type            CommandType       `json:"type"`
@@ -51,8 +51,8 @@ type CommandCreateResponse struct {
 	GraphTemplate   *IdName           `json:"graph_template_id,omitempty"`
 }
 
-// CommandResponse represents a command in Centreon.
-type CommandResponse struct {
+// CommandFind represents the command found in Centreon.
+type CommandFindResponse struct {
 	Id          int64       `json:"id"`
 	Name        string      `json:"name"`
 	Type        CommandType `json:"type"`

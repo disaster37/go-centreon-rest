@@ -1,6 +1,9 @@
 package api
 
 import (
+	"fmt"
+	"net/http"
+
 	"emperror.dev/errors"
 	"github.com/go-resty/resty/v2"
 	"github.com/sirupsen/logrus"
@@ -9,18 +12,26 @@ import (
 // CommandService defines the interface for managing commands in Centreon.
 type CommandService interface {
 	// Create a new command
-	Create(command *CommandCreateRequest) (commandResponse *CommandCreateResponse, err error)
+	Create(command *CommandCreateOrUpdateRequest) (commandResponse *CommandResponse, err error)
+
+	// Update an existing command by ID
+	// Need PR https://github.com/centreon/centreon/pull/9359
+	Update(id int64, command *CommandCreateOrUpdateRequest) (err error)
+
+	// Delete a command by ID
+	// Need PR https://github.com/centreon/centreon/pull/9359
+	Delete(id int64) (err error)
 
 	// Get a command by ID
-	// It uses Find method to get the command
+	// Need PR https://github.com/centreon/centreon/pull/9359
 	Get(id int64) (commandResponse *CommandResponse, err error)
 
 	// GetByName retrieves a command by its Name
 	// It uses Find method to get the command
-	GetByName(name string) (commandResponse *CommandResponse, err error)
+	GetByName(name string) (commandResponse *CommandFindResponse, err error)
 
 	// Find retrieves commands based on specific criteria
-	Find(opts *ListOptions) (commandListResponse *ListResponse[CommandResponse], err error)
+	Find(opts *ListOptions) (commandListResponse *ListResponse[CommandFindResponse], err error)
 }
 
 type DefaultCommandService struct {
@@ -41,24 +52,31 @@ func (c *DefaultCommandService) Get(id int64) (commandResponse *CommandResponse,
 
 	c.logger.Debugf("Get command with Id: %d", id)
 
-	commandListResponse, err := c.Find(&ListOptions{
-		Search: map[string]interface{}{
-			"id": id,
-		},
-	})
+	commandResponse = new(CommandResponse)
+
+	response, err := c.client.R().
+		SetResult(commandResponse).
+		SetPathParam("id", fmt.Sprintf("%d", id)).
+		Get("/configuration/commands/{id}")
+
+	c.logger.Debugf("Response from get command: %s", response.String())
+
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to find command with id %d", id)
+		return nil, errors.Wrapf(err, "failed to get command with id %d", id)
 	}
 
-	if commandListResponse.Meta.Total == 1 {
-		return &commandListResponse.Result[0], nil
+	if response.IsError() {
+		if response.StatusCode() == http.StatusNotFound {
+			return nil, nil
+		}
+		return nil, errors.Errorf("get command failed with status code: %d", response.StatusCode())
 	}
 
-	return nil, nil
+	return commandResponse, nil
 }
 
 // GetByName retrieves a command by its Name
-func (c *DefaultCommandService) GetByName(name string) (commandResponse *CommandResponse, err error) {
+func (c *DefaultCommandService) GetByName(name string) (commandResponse *CommandFindResponse, err error) {
 
 	c.logger.Debugf("Get command with Name: %s", name)
 
@@ -79,7 +97,7 @@ func (c *DefaultCommandService) GetByName(name string) (commandResponse *Command
 }
 
 // Find retrieves commands based on specific criteria
-func (c *DefaultCommandService) Find(opts *ListOptions) (commandListResponse *ListResponse[CommandResponse], err error) {
+func (c *DefaultCommandService) Find(opts *ListOptions) (commandListResponse *ListResponse[CommandFindResponse], err error) {
 
 	if opts == nil {
 		opts = &ListOptions{}
@@ -87,7 +105,7 @@ func (c *DefaultCommandService) Find(opts *ListOptions) (commandListResponse *Li
 
 	c.logger.Debugf("Find commands with options: %+v", opts)
 
-	commandListResponse = new(ListResponse[CommandResponse])
+	commandListResponse = new(ListResponse[CommandFindResponse])
 
 	response, err := c.client.R().
 		SetResult(commandListResponse).
@@ -106,11 +124,12 @@ func (c *DefaultCommandService) Find(opts *ListOptions) (commandListResponse *Li
 
 	return commandListResponse, nil
 }
+
 // Create creates a new command
-func (c *DefaultCommandService) Create(command *CommandCreateRequest) (commandResponse *CommandCreateResponse, err error) {
+func (c *DefaultCommandService) Create(command *CommandCreateOrUpdateRequest) (commandResponse *CommandResponse, err error) {
 	c.logger.Debugf("Create command with data: %+v", command)
 
-	commandResponse = new(CommandCreateResponse)
+	commandResponse = new(CommandResponse)
 
 	response, err := c.client.R().
 		SetBody(command).
@@ -128,4 +147,50 @@ func (c *DefaultCommandService) Create(command *CommandCreateRequest) (commandRe
 	}
 
 	return commandResponse, nil
+}
+
+// Update update and existing command
+func (c *DefaultCommandService) Update(id int64, command *CommandCreateOrUpdateRequest) (err error) {
+	c.logger.Debugf("Update command with id %d and data: %+v", id, command)
+
+	response, err := c.client.R().
+		SetBody(command).
+		SetPathParam("id", fmt.Sprintf("%d", id)).
+		Put("/configuration/commands/{id}")
+
+	c.logger.Debugf("Response from update command: %s", response.String())
+
+	if err != nil {
+		return errors.Wrap(err, "error during update command request")
+	}
+
+	if response.IsError() {
+		return errors.Errorf("update command failed with status code: %d and message: %s", response.StatusCode(), response.String())
+	}
+
+	return nil
+}
+
+// Delete delete and existing command
+func (c *DefaultCommandService) Delete(id int64) (err error) {
+	c.logger.Debugf("Delete command with id: %d", id)
+
+	response, err := c.client.R().
+		SetPathParam("id", fmt.Sprintf("%d", id)).
+		Delete("/configuration/commands/{id}")
+
+	c.logger.Debugf("Response from delete command: %s", response.String())
+
+	if err != nil {
+		return errors.Wrap(err, "error during delete command request")
+	}
+
+	if response.IsError() {
+		if response.StatusCode() == http.StatusNotFound {
+			return nil
+		}
+		return errors.Errorf("delete command failed with status code: %d and message: %s", response.StatusCode(), response.String())
+	}
+
+	return nil
 }

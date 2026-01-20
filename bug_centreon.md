@@ -36,6 +36,8 @@ Method not allowed. No way to get all fields for a given host template from conf
 
 List with filter not working. Always return empty list.
 
+> It's fix on develop branch, but not on 25.10.
+
 ---
 
 ## Media
@@ -57,14 +59,17 @@ Need PR https://github.com/centreon/centreon/pull/9329
 ### Get
 
 Method not allowed. No way to get all fields for a given command from configuration/command API
+Need PR https://github.com/centreon/centreon/pull/9359
 
 ### Delete
 
 Method not allowed. No way to delete command from configuration/command API
+Need PR https://github.com/centreon/centreon/pull/9359
 
 ### Update
 
 Method not allowed. No way to update command from configuration/command API
+Need PR https://github.com/centreon/centreon/pull/9359
 
 ---
 
