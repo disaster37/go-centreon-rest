@@ -13,18 +13,18 @@ import (
 // HostTemplateService defines CRUD operations for Host Template entities
 type HostTemplateService interface {
 	// Get retrieves a host template by its ID
-	// It use Find method to get the host template
+	// Need PR
 	Get(id int64) (hostTemplateResponse *HostTemplateResponse, err error)
 
 	// GetByName retrieves a host template by its Name
 	// It use Find method to get the host template
-	GetByName(name string) (hostTemplateResponse *HostTemplateResponse, err error)
+	GetByName(name string) (hostTemplateResponse *HostTemplateListResponse, err error)
 
 	// Find retrieves host templates based on specific criteria
-	Find(opts *ListOptions) (hostTemplateListResponse *ListResponse[HostTemplateResponse], err error)
+	Find(opts *ListOptions) (hostTemplateListResponse *ListResponse[HostTemplateListResponse], err error)
 
 	// Create adds a new host template
-	Create(template *HostTemplateCreateRequest) (hostTemplateResponse *HostTemplateCreateResponse, err error)
+	Create(template *HostTemplateCreateRequest) (hostTemplateResponse *HostTemplateResponse, err error)
 
 	// Update modifies an existing host template
 	Update(id int64, template *HostTemplateUpdateRequest) (err error)
@@ -52,24 +52,31 @@ func (h *DefaultHostTemplateService) Get(id int64) (hostTemplateResponse *HostTe
 
 	h.logger.Debugf("Get host template with Id: %d", id)
 
-	hostTemplateListResponse, err := h.Find(&ListOptions{
-		Search: map[string]interface{}{
-			"id": id,
-		},
-	})
+	hostTemplateResponse = new(HostTemplateResponse)
+
+	response, err := h.client.R().
+		SetPathParam("hostTemplateId", fmt.Sprintf("%d", id)).
+		SetResult(hostTemplateResponse).
+		Get("/configuration/hosts/templates/{hostTemplateId}")
+
+	h.logger.Debugf("Response from get host template: %s", response.String())
+
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to find host template with id %d", id)
+		return nil, errors.Wrap(err, "error during get host template request")
 	}
 
-	if hostTemplateListResponse.Meta.Total == 1 {
-		return &hostTemplateListResponse.Result[0], nil
+	if response.IsError() {
+		if response.StatusCode() == http.StatusNotFound {
+			return nil, nil
+		}
+		return nil, errors.Errorf("get host template failed with status code %d and message %s", response.StatusCode(), response.String())
 	}
 
-	return nil, nil
+	return hostTemplateResponse, nil
 }
 
 // GetByName retrieves a host template by its Name
-func (h *DefaultHostTemplateService) GetByName(name string) (hostTemplateResponse *HostTemplateResponse, err error) {
+func (h *DefaultHostTemplateService) GetByName(name string) (hostTemplateResponse *HostTemplateListResponse, err error) {
 
 	h.logger.Debugf("Get host template with Name: %s", name)
 
@@ -90,7 +97,7 @@ func (h *DefaultHostTemplateService) GetByName(name string) (hostTemplateRespons
 }
 
 // Find retrieves host templates based on specific criteria
-func (h *DefaultHostTemplateService) Find(opts *ListOptions) (hostTemplateListResponse *ListResponse[HostTemplateResponse], err error) {
+func (h *DefaultHostTemplateService) Find(opts *ListOptions) (hostTemplateListResponse *ListResponse[HostTemplateListResponse], err error) {
 
 	if opts == nil {
 		opts = &ListOptions{}
@@ -98,7 +105,7 @@ func (h *DefaultHostTemplateService) Find(opts *ListOptions) (hostTemplateListRe
 
 	h.logger.Debugf("Find host templates with options: %+v", opts)
 
-	hostTemplateListResponse = new(ListResponse[HostTemplateResponse])
+	hostTemplateListResponse = new(ListResponse[HostTemplateListResponse])
 
 	response, err := h.client.R().
 		SetQueryParams(opts.GetQueryParams()).
@@ -119,7 +126,7 @@ func (h *DefaultHostTemplateService) Find(opts *ListOptions) (hostTemplateListRe
 }
 
 // Create adds a new host template
-func (h *DefaultHostTemplateService) Create(template *HostTemplateCreateRequest) (hostTemplateResponse *HostTemplateCreateResponse, err error) {
+func (h *DefaultHostTemplateService) Create(template *HostTemplateCreateRequest) (hostTemplateResponse *HostTemplateResponse, err error) {
 
 	h.logger.Debugf("Create host template with data: %+v", template)
 
@@ -128,7 +135,7 @@ func (h *DefaultHostTemplateService) Create(template *HostTemplateCreateRequest)
 		return nil, errors.Wrap(err, "validation error on create host template")
 	}
 
-	hostTemplateResponse = new(HostTemplateCreateResponse)
+	hostTemplateResponse = new(HostTemplateResponse)
 
 	response, err := h.client.R().
 		SetBody(template).

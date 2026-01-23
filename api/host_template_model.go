@@ -2,7 +2,7 @@ package api
 
 // HostTemplateResponse represents a host template reponse in Centreon.
 // https://docs-api.centreon.com/api/centreon-web/25.10/#tag/Host-template/paths/~1configuration~1hosts~1templates/get
-type HostTemplateResponse struct {
+type HostTemplateListResponse struct {
 	Id                        int64        `json:"id"`
 	Name                      string       `json:"name"`
 	Alias                     string       `json:"alias"`
@@ -88,9 +88,9 @@ type HostTemplateCreateRequest struct {
 	Macros                    []Macro      `json:"macros,omitempty"`
 }
 
-// HostTemplateCreateResponse represents the response after creating a host template in Centreon.
+// HostTemplateResponse represents the response of a host template in Centreon.
 // https://docs-api.centreon.com/api/centreon-web/25.10/#tag/Host-template/paths/~1configuration~1hosts~1templates/post
-type HostTemplateCreateResponse struct {
+type HostTemplateResponse struct {
 	Id                        int64        `json:"id"`
 	Name                      string       `json:"name"`
 	Alias                     string       `json:"alias"`
