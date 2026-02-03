@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"emperror.dev/errors"
 	"github.com/go-playground/validator/v10"
@@ -13,7 +14,7 @@ import (
 // HostTemplateService defines CRUD operations for Host Template entities
 type HostTemplateService interface {
 	// Get retrieves a host template by its ID
-	// Need PR
+	// Need PR https://github.com/centreon/centreon/pull/9436
 	Get(id int64) (hostTemplateResponse *HostTemplateResponse, err error)
 
 	// GetByName retrieves a host template by its Name
@@ -52,6 +53,10 @@ func (h *DefaultHostTemplateService) Get(id int64) (hostTemplateResponse *HostTe
 
 	h.logger.Debugf("Get host template with Id: %d", id)
 
+	if id <= 0 {
+		return nil, errors.Errorf("invalid host template id: %d", id)
+	}
+
 	hostTemplateResponse = new(HostTemplateResponse)
 
 	response, err := h.client.R().
@@ -79,6 +84,10 @@ func (h *DefaultHostTemplateService) Get(id int64) (hostTemplateResponse *HostTe
 func (h *DefaultHostTemplateService) GetByName(name string) (hostTemplateResponse *HostTemplateListResponse, err error) {
 
 	h.logger.Debugf("Get host template with Name: %s", name)
+
+	if strings.TrimSpace(name) == "" {
+		return nil, errors.New("host template name cannot be empty")
+	}
 
 	hostTemplateListResponse, err := h.Find(&ListOptions{
 		Search: map[string]interface{}{
@@ -161,6 +170,10 @@ func (h *DefaultHostTemplateService) Update(id int64, template *HostTemplateUpda
 
 	h.logger.Debugf("Update host template with Id %d and data: %+v", id, template)
 
+	if id <= 0 {
+		return errors.Errorf("invalid host template id: %d", id)
+	}
+
 	validate := validator.New(validator.WithRequiredStructEnabled())
 	if err := validate.Struct(template); err != nil {
 		return errors.Wrap(err, "validation error on update host template")
@@ -188,6 +201,10 @@ func (h *DefaultHostTemplateService) Update(id int64, template *HostTemplateUpda
 func (h *DefaultHostTemplateService) Delete(id int64) (err error) {
 
 	h.logger.Debugf("Delete host template with Id: %d", id)
+
+	if id <= 0 {
+		return errors.Errorf("invalid host template id: %d", id)
+	}
 
 	response, err := h.client.R().
 		SetPathParam("hostTemplateId", fmt.Sprintf("%d", id)).

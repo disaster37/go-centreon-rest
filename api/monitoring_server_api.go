@@ -111,6 +111,10 @@ func (h *DefaultMonitoringServerService) ListFromRealTime(opts *ListOptions) (*L
 func (h *DefaultMonitoringServerService) GenerateConfiguration(id int64) error {
 	h.logger.Debugf("Generate configuration for monitoring server ID: %d", id)
 
+	if id <= 0 {
+		return errors.Errorf("invalid monitoring server id: %d", id)
+	}
+
 	response, err := h.client.R().
 		SetPathParam("monitoringServerId", fmt.Sprintf("%d", id)).
 		Get("/configuration/monitoring-servers/{monitoringServerId}/generate")
@@ -132,6 +136,10 @@ func (h *DefaultMonitoringServerService) GenerateConfiguration(id int64) error {
 func (h *DefaultMonitoringServerService) ReloadConfiguration(id int64) error {
 	h.logger.Debugf("Reload configuration for monitoring server ID: %d", id)
 
+	if id <= 0 {
+		return errors.Errorf("invalid monitoring server id: %d", id)
+	}
+
 	response, err := h.client.R().
 		SetPathParam("monitoringServerId", fmt.Sprintf("%d", id)).
 		Get("/configuration/monitoring-servers/{monitoringServerId}/reload")
@@ -152,6 +160,10 @@ func (h *DefaultMonitoringServerService) ReloadConfiguration(id int64) error {
 // GenerateAndReloadConfiguration generates and reloads configuration for a monitoring server
 func (h *DefaultMonitoringServerService) GenerateAndReloadConfiguration(id int64) error {
 	h.logger.Debugf("Generate and reload configuration for monitoring server ID: %d", id)
+
+	if id <= 0 {
+		return errors.Errorf("invalid monitoring server id: %d", id)
+	}
 
 	response, err := h.client.R().
 		SetPathParam("monitoringServerId", fmt.Sprintf("%d", id)).

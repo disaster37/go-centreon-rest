@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"emperror.dev/errors"
 	"github.com/go-playground/validator/v10"
@@ -55,8 +56,8 @@ func (m *DefaultMediaService) Create(media *MediaCreateRequest) (mediaResponse *
 
 	m.logger.Debugf("Create Media: %+v", media)
 
-	Validator := validator.New()
-	if err := Validator.Struct(media); err != nil {
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	if err := validate.Struct(media); err != nil {
 		return nil, errors.Wrap(err, "validation error on create media")
 	}
 
@@ -89,6 +90,10 @@ func (m *DefaultMediaService) Create(media *MediaCreateRequest) (mediaResponse *
 func (m *DefaultMediaService) Update(id int64, name string, contend []byte) (responseMedia *MediaCreateOrUpdateResponseResult, err error) {
 
 	m.logger.Debugf("Update Media with id: %d", id)
+
+	if id <= 0 {
+		return nil, errors.Errorf("invalid media id: %d", id)
+	}
 
 	responseMedia = new(MediaCreateOrUpdateResponseResult)
 
@@ -141,6 +146,10 @@ func (m *DefaultMediaService) Find(options *ListOptions) (mediaListResponse *Lis
 func (m *DefaultMediaService) Delete(id int64) (err error) {
 	m.logger.Debugf("Delete media with Id: %d", id)
 
+	if id <= 0 {
+		return errors.Errorf("invalid media id: %d", id)
+	}
+
 	response, err := m.client.R().
 		SetPathParam("mediaId", fmt.Sprintf("%d", id)).
 		Delete("/configuration/medias/{mediaId}")
@@ -165,6 +174,10 @@ func (m *DefaultMediaService) Delete(id int64) (err error) {
 // Get retrieves a media by its ID.
 func (m *DefaultMediaService) Get(id int64) (mediaResponse *MediaReponse, err error) {
 	m.logger.Debugf("Get media with Id: %d", id)
+
+	if id <= 0 {
+		return nil, errors.Errorf("invalid media id: %d", id)
+	}
 
 	mediaResponse = new(MediaReponse)
 
@@ -192,6 +205,10 @@ func (m *DefaultMediaService) Get(id int64) (mediaResponse *MediaReponse, err er
 // GetByName retrieves a media by its Name.
 func (m *DefaultMediaService) GetByName(name string) (mediaResponse *MediaListReponse, err error) {
 	m.logger.Debugf("Get media with Name: %s", name)
+
+	if strings.TrimSpace(name) == "" {
+		return nil, errors.New("media name cannot be empty")
+	}
 
 	mediaListResponse, err := m.Find(&ListOptions{
 		Search: map[string]interface{}{

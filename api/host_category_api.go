@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"emperror.dev/errors"
 	"github.com/go-playground/validator/v10"
@@ -84,6 +85,10 @@ func (h *DefaultHostCategoryService) Create(hostCategory *HostCategoryCreateOrUp
 func (h *DefaultHostCategoryService) Update(id int64, hostCategory *HostCategoryCreateOrUpdateRequest) (err error) {
 	h.logger.Debugf("Update host category with Id %d: %+v", id, hostCategory)
 
+	if id <= 0 {
+		return errors.New("invalid host category id: 0")
+	}
+
 	validate := validator.New(validator.WithRequiredStructEnabled())
 	if err := validate.Struct(hostCategory); err != nil {
 		return errors.Wrap(err, "validation error on update host category")
@@ -110,6 +115,10 @@ func (h *DefaultHostCategoryService) Update(id int64, hostCategory *HostCategory
 // Delete deletes a host category by ID
 func (h *DefaultHostCategoryService) Delete(id int64) (err error) {
 	h.logger.Debugf("Delete host category with Id: %d", id)
+
+	if id <= 0 {
+		return errors.New("invalid host category id: 0")
+	}
 
 	response, err := h.client.R().
 		SetPathParam("categoryId", fmt.Sprintf("%d", id)).
@@ -163,6 +172,10 @@ func (h *DefaultHostCategoryService) List(opts *ListOptions) (hostCategoryListRe
 func (h *DefaultHostCategoryService) Get(id int64) (hostCategoryResponse *HostCategoryResponse, err error) {
 	h.logger.Debugf("Get host category with Id: %d", id)
 
+	if id <= 0 {
+		return nil, errors.Errorf("invalid host category id: %d", id)
+	}
+
 	hostCategoryResponse = new(HostCategoryResponse)
 
 	reponse, err := h.client.R().
@@ -189,6 +202,10 @@ func (h *DefaultHostCategoryService) Get(id int64) (hostCategoryResponse *HostCa
 // GetByName retrieves a host category by its Name
 func (h *DefaultHostCategoryService) GetByName(name string) (hostCategoryResponse *HostCategoryResponse, err error) {
 	h.logger.Debugf("Get host category with name: %s", name)
+
+	if strings.TrimSpace(name) == "" {
+		return nil, errors.New("host category name cannot be empty")
+	}
 
 	hostCategoryListResponse, err := h.List(&ListOptions{
 		Search: map[string]interface{}{

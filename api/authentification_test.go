@@ -1,7 +1,9 @@
 package api
 
-func (s *ApiTestSuite) TestLogin() {
-	resp, err := s.api.Authentification().Login(&AuthenticationRequest{
+func (s *ApiTestSuite) TestAuthentificationApi() {
+
+	// Test login
+	respLogin, err := s.api.Authentification().Login(&AuthenticationRequest{
 		Security: AuthenticationRequestSecurity{
 			Credentials: AuthenticationRequestSecurityCredentials{
 				Login:    username,
@@ -10,14 +12,28 @@ func (s *ApiTestSuite) TestLogin() {
 		},
 	})
 	s.NoError(err)
-	s.NotEmpty(resp.Security.Token)
-	s.NotEmpty(resp.Contact.Name)
-}
+	s.NotEmpty(respLogin.Security.Token)
+	s.Equal("admin_admin", respLogin.Contact.Name)
+	s.Equal("admin", respLogin.Contact.Alias)
+	s.Equal("admin@no.no", respLogin.Contact.Email)
+	s.True(*respLogin.Contact.IsAdmin)
+	s.Equal(1, respLogin.Contact.Id)
 
-func (s *ApiTestSuite) TestLogout() {
-	resp, err := s.api.Authentification().Logout()
+	// Login must failed with wrong password
+	_, err = s.api.Authentification().Login(&AuthenticationRequest{
+		Security: AuthenticationRequestSecurity{
+			Credentials: AuthenticationRequestSecurityCredentials{
+				Login:    username,
+				Password: "wrongPassword",
+			},
+		},
+	})
+	s.Error(err)
+
+	// Test logout
+	respLogout, err := s.api.Authentification().Logout()
 	s.NoError(err)
-	s.NotEmpty(resp.Message)
+	s.NotEmpty(respLogout.Message)
 
 	_, err = s.api.Authentification().Login(&AuthenticationRequest{
 		Security: AuthenticationRequestSecurity{
@@ -31,29 +47,38 @@ func (s *ApiTestSuite) TestLogout() {
 		s.FailNow(err.Error())
 	}
 
-}
-
-func (s *ApiTestSuite) TestUpdatePassword() {
-	_, err := s.api.Authentification().UpdatePassword(
+	// Test change password
+	_, err = s.api.Authentification().UpdatePassword(
 		username,
 		&PasswordUpdateRequest{
 			OldPassword: password,
 			NewPassword: password,
 		},
 	)
-
 	s.NoError(err)
 
-}
+	// Test change password with wrong old password
+	_, err = s.api.Authentification().UpdatePassword(
+		username,
+		&PasswordUpdateRequest{
+			OldPassword: "wrongOldPassword",
+			NewPassword: password,
+		},
+	)
+	s.Error(err)
 
-func (s *ApiTestSuite) TestGetProviders() {
+	// Test get providers
 	providers, err := s.api.Authentification().GetProviders()
 	s.NoError(err)
 	s.NotEmpty(providers)
+	s.Equal(1, providers[0].Id)
 	s.Equal("local", providers[0].Name)
-}
+	s.Equal("local", providers[0].Type)
+	s.True(*providers[0].IsActive)
+	s.True(*providers[0].IsForced)
+	s.NotEmpty(providers[0].AuthenticationURI)
 
-func (s *ApiTestSuite) TestAuthentificationToProvider() {
+	// Test authentification to provider
 	resp, err := s.api.Authentification().AuthentificationToProvider(
 		"local",
 		&AuthenticationRequestSecurityCredentials{
@@ -64,4 +89,5 @@ func (s *ApiTestSuite) TestAuthentificationToProvider() {
 
 	s.NoError(err)
 	s.NotEmpty(resp.RedirectUri)
+
 }

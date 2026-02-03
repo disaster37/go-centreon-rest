@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"emperror.dev/errors"
 	"github.com/go-playground/validator/v10"
@@ -114,6 +115,10 @@ func (s *DefaultHostGroupService) List(opts *ListOptions) (hostGroupListResponse
 func (s *DefaultHostGroupService) Update(id int64, hostGroup *HostGroupCreateOrUpdateRequest) (err error) {
 	s.logger.Debugf("Update host group with Id %d: %+v", id, hostGroup)
 
+	if id <= 0 {
+		return errors.New("invalid host group id: 0")
+	}
+
 	if hostGroup.Hosts == nil {
 		hostGroup.Hosts = []int64{}
 	}
@@ -145,6 +150,10 @@ func (s *DefaultHostGroupService) Update(id int64, hostGroup *HostGroupCreateOrU
 func (s *DefaultHostGroupService) Get(id int64) (hostGroupResponse *HostGroupResponse, err error) {
 	s.logger.Debugf("Get host group with Id: %d", id)
 
+	if id <= 0 {
+		return nil, errors.New("invalid host group id: 0")
+	}
+
 	hostGroupResponse = new(HostGroupResponse)
 
 	response, err := s.client.R().
@@ -173,6 +182,10 @@ func (s *DefaultHostGroupService) Get(id int64) (hostGroupResponse *HostGroupRes
 func (s *DefaultHostGroupService) Delete(id int64) (err error) {
 	s.logger.Debugf("Delete host group with Id: %d", id)
 
+	if id <= 0 {
+		return errors.New("invalid host group id: 0")
+	}
+
 	response, err := s.client.R().
 		SetPathParam("groupId", fmt.Sprintf("%d", id)).
 		Delete("/configuration/hosts/groups/{groupId}")
@@ -197,6 +210,10 @@ func (s *DefaultHostGroupService) Delete(id int64) (err error) {
 // It uses the List method to get the host group.
 func (s *DefaultHostGroupService) GetByName(name string) (hostGroupResponse *HostGroupResponse, err error) {
 	s.logger.Debugf("Get host group by Name: %s", name)
+
+	if strings.TrimSpace(name) == "" {
+		return nil, errors.New("host group name cannot be empty")
+	}
 
 	hostGroupListResponse, err := s.List(&ListOptions{
 		Search: map[string]interface{}{

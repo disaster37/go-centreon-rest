@@ -18,22 +18,12 @@ type API interface {
 	Command() CommandService
 	TimePeriod() TimePeriodService
 	Service() ServiceService
-	/*
-		Acknowledgement() AcknowledgementInterface
-		Command() CommandInterface
-		ContactGroup() ContactGroupInterface
-		Contact() ContactInterface
-		Downtime() DowntimeInterface
-		Gorgone() GorgoneInterface
-		Host() HostInterface
-		HostCategory() HostCategoryInterface
-		//HostSeverity() HostSeverityInterface
-		Media() MediaInterface
-		HostTemplate() HostTemplateInterface
-		Service() ServiceInterface
-		ServiceCategory() ServiceCategoryInterface
-		ServiceSeverity() ServiceSeverityInterface
-	*/
+	ServiceTemplate() ServiceTemplateService
+	ServiceGroup() ServiceGroupService
+	ServiceCategory() ServiceCategoryService
+	ServiceSeverity() ServiceSeverityService
+	Downtime() DowntimeService
+	Acknowledgement() AcknowledgementInterface
 }
 
 // DefaultAPI implements API
@@ -98,4 +88,28 @@ func (h *DefaultAPI) TimePeriod() TimePeriodService {
 
 func (h *DefaultAPI) Service() ServiceService {
 	return NewServiceService(h.client, h.logger)
+}
+
+func (h *DefaultAPI) ServiceTemplate() ServiceTemplateService {
+	return NewServiceTemplateService(h.client, h.logger)
+}
+
+func (h *DefaultAPI) ServiceGroup() ServiceGroupService {
+	return NewServiceGroupService(h.client, h.logger)
+}
+
+func (h *DefaultAPI) ServiceCategory() ServiceCategoryService {
+	return NewServiceCategoryService(h.client, h.logger)
+}
+
+func (h *DefaultAPI) ServiceSeverity() ServiceSeverityService {
+	return NewServiceSeverityService(h.client, h.logger)
+}
+
+func (h *DefaultAPI) Downtime() DowntimeService {
+	return NewDowntimeService(h.client, h.logger)
+}
+
+func (h *DefaultAPI) Acknowledgement() AcknowledgementInterface {
+	return NewAcknowledgementService(h.client, h.logger)
 }

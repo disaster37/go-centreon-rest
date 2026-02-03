@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"emperror.dev/errors"
 	"github.com/go-playground/validator/v10"
@@ -99,6 +100,10 @@ func (h *DefaultHostService) Update(id int64, host *HostUpdateRequest) (err erro
 
 	h.logger.Debugf("Update host with id: %d, Host: %+v", id, host)
 
+	if id <= 0 {
+		return errors.Errorf("invalid host id: %d", id)
+	}
+
 	validate := validator.New(validator.WithRequiredStructEnabled())
 	if err := validate.Struct(host); err != nil {
 		return errors.Wrap(err, "validation error on update host")
@@ -126,6 +131,10 @@ func (h *DefaultHostService) Update(id int64, host *HostUpdateRequest) (err erro
 func (h *DefaultHostService) Delete(id int64) (err error) {
 
 	h.logger.Debugf("Delete host with Id: %d", id)
+
+	if id <= 0 {
+		return errors.Errorf("invalid host id: %d", id)
+	}
 
 	responseMessage := new(ResponseMessage)
 
@@ -180,6 +189,10 @@ func (h *DefaultHostService) Find(opts *ListOptions) (hostListResponse *ListResp
 func (h *DefaultHostService) Get(id int64) (hostResponse *HostResponse, err error) {
 	h.logger.Debugf("Get host with Id: %d", id)
 
+	if id <= 0 {
+		return nil, errors.Errorf("invalid host id: %d", id)
+	}
+
 	hostResponse = new(HostResponse)
 
 	response, err := h.client.R().
@@ -207,6 +220,10 @@ func (h *DefaultHostService) Get(id int64) (hostResponse *HostResponse, err erro
 func (h *DefaultHostService) GetByName(name string) (hostResponse *HostFindResponse, err error) {
 	h.logger.Debugf("Get host with name: %s", name)
 
+	if strings.TrimSpace(name) == "" {
+		return nil, errors.Errorf("name is required to get host by name")
+	}
+
 	hostListResponse, err := h.Find(&ListOptions{
 		Search: map[string]interface{}{
 			"name": name,
@@ -227,6 +244,10 @@ func (h *DefaultHostService) GetByName(name string) (hostResponse *HostFindRespo
 func (h *DefaultHostService) GetFromRealTime(id int64) (hostResponse *HostRealTimeResponse, err error) {
 
 	h.logger.Debugf("Get host with Id: %d", id)
+
+	if id <= 0 {
+		return nil, errors.Errorf("invalid host id: %d", id)
+	}
 
 	hostResponse = new(HostRealTimeResponse)
 
@@ -255,6 +276,10 @@ func (h *DefaultHostService) GetFromRealTime(id int64) (hostResponse *HostRealTi
 func (h *DefaultHostService) GetByNameFromRealTime(name string) (hostResponse *HostRealTimeResponse, err error) {
 
 	h.logger.Debugf("Get host with name: %s", name)
+
+	if strings.TrimSpace(name) == "" {
+		return nil, errors.Errorf("name is required to get host by name")
+	}
 
 	hostListResponse, err := h.ListFromRealTime(&HostListOptions{
 		ListOptions: ListOptions{

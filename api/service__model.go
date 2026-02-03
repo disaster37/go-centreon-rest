@@ -289,11 +289,4 @@ const (
 	ServiceCheckTypePassive ServiceCheckType = 1
 )
 
-// AcknowledgedState represents the acknowledged state of a service.
-type AcknowledgedState int
 
-const (
-	AcknowledgedStateWarning  AcknowledgedState = 1
-	AcknowledgedStateCritical AcknowledgedState = 2
-	AcknowledgedStateUnknown  AcknowledgedState = 3
-)

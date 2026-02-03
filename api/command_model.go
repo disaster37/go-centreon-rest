@@ -15,24 +15,24 @@ type CommandCreateOrUpdateRequest struct {
 	Type            CommandType       `json:"type" validate:"required,oneof=1 2 3 4"`
 	CommandLine     string            `json:"command_line" validate:"required"`
 	IsShell         *bool             `json:"is_shell,omitempty"`
-	ArgumentExample *string           `json:"argument_example,omitempty"`
-	Arguments       []CommandArgument `json:"arguments,omitempty"`
-	Macros          []CommandMacro    `json:"macros,omitempty"`
-	ConnectorId     *int64            `json:"connector_id,omitempty"`
-	GraphTemplateId *int64            `json:"graph_template_id,omitempty"`
+	ArgumentExample *string           `json:"argument_example,omitempty" validate:"omitempty"`
+	Arguments       []CommandArgument `json:"arguments,omitempty" validate:"omitempty,dive"`
+	Macros          []CommandMacro    `json:"macros,omitempty" validate:"omitempty,dive"`
+	ConnectorId     *int64            `json:"connector_id,omitempty" validate:"omitempty,gt=0"`
+	GraphTemplateId *int64            `json:"graph_template_id,omitempty" validate:"omitempty,gt=0"`
 }
 
-// CommandResponse represents a command in Centreon.
+// CommandArgument represents an argument for a command.
 type CommandArgument struct {
-	Name        string `json:"name" validate:"required"`
-	Description string `json:"description" validate:"required"`
+	Name        string  `json:"name" validate:"required"`
+	Description *string `json:"description,omitempty"`
 }
 
 // CommandMacro represents a macro associated with a command in Centreon.
 type CommandMacro struct {
-	Name        string `json:"name" validate:"required"`
-	Type        string `json:"type" validate:"required,oneof=1 2"`
-	Description string `json:"description" validate:"required"`
+	Name        string           `json:"name" validate:"required"`
+	Type        CommandMacroType `json:"type" validate:"required,oneof=1 2"`
+	Description *string          `json:"description,omitempty"`
 }
 
 // CommandResponse represents the command in Centreon.
@@ -61,3 +61,10 @@ type CommandFindResponse struct {
 	IsLocked    bool        `json:"is_locked,omitempty"`
 	IsActivated bool        `json:"is_activated,omitempty"`
 }
+
+type CommandMacroType int
+
+const (
+	HostMacro    CommandMacroType = 1
+	ServiceMacro CommandMacroType = 2
+)

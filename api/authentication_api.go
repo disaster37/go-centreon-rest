@@ -103,8 +103,11 @@ func (h *DefaultAuthentificationService) Logout() (*LogoutAuthenticationResponse
 
 // UpdatePassword method to change the password for a given user
 func (h *DefaultAuthentificationService) UpdatePassword(username string, request *PasswordUpdateRequest) (*PasswordUpdateResponse, error) {
-	validate := validator.New(validator.WithRequiredStructEnabled())
+	if strings.TrimSpace(username) == "" {
+		return nil, errors.Errorf("username is required for UpdatePassword")
+	}
 
+	validate := validator.New(validator.WithRequiredStructEnabled())
 	if err := validate.Struct(request); err != nil {
 		return nil, errors.Wrap(err, "validation error on UpdatePassword")
 	}
@@ -157,7 +160,7 @@ func (h *DefaultAuthentificationService) GetProviders() ([]ProviderConfiguration
 // AuthentificationToProvider method to authenticate a user via a specific provider
 func (h *DefaultAuthentificationService) AuthentificationToProvider(providerName string, request *AuthenticationRequestSecurityCredentials) (*AuthentificationToProviderResponse, error) {
 
-	if providerName == "" || len(strings.TrimSpace(providerName)) == 0 {
+	if strings.TrimSpace(providerName) == "" {
 		return nil, errors.Errorf("providerName is required for AuthentificationToProvider")
 	}
 

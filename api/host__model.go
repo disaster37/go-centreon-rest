@@ -64,19 +64,19 @@ func (h HostCreateRequest) String() string {
 // HostUpdateRequest represents the payload to updatecreate a host in Centreon.
 // https://docs-api.centreon.com/api/centreon-web/25.10/#tag/Host/paths/~1configuration~1hosts~1%7Bhost_id%7D/patch
 type HostUpdateRequest struct {
-	Name                      *string      `json:"name,omitempty" validate:"omitempty,required,max=200"`
+	Name                      *string      `json:"name,omitempty" validate:"omitempty,max=200"`
 	Alias                     *string      `json:"alias,omitempty" validate:"omitempty,max=200"`
-	Address                   *string      `json:"address,omitempty" validate:"omitempty,required,ip|fqdn"`
-	MonitoringServerId        *int64       `json:"monitoring_server_id,omitempty" validate:"omitempty,required"`
-	Templates                 []int64      `json:"templates,omitempty"`
+	Address                   *string      `json:"address,omitempty" validate:"omitempty,ip|fqdn"`
+	MonitoringServerId        *int64       `json:"monitoring_server_id,omitempty" validate:"omitempty,gt=0"`
+	Templates                 []int64      `json:"templates,omitempty" validate:"omitempty,dive,gt=0"`
 	SnmpCommunity             *string      `json:"snmp_community,omitempty"`
 	SnmpVersion               *SnmpVersion `json:"snmp_version,omitempty" validate:"omitempty,oneof=1 2c 3"`
 	GeoCoords                 *string      `json:"geo_coords,omitempty" validate:"omitempty,max=32"`
-	TimezoneId                *int64       `json:"timezone_id,omitempty"`
-	SeverityId                *int64       `json:"severity_id,omitempty"`
-	CheckCommandId            *int64       `json:"check_command_id,omitempty"`
-	CheckCommandArgs          []string     `json:"check_command_args,omitempty"`
-	CheckTimeperiodId         *int64       `json:"check_timeperiod_id,omitempty"`
+	TimezoneId                *int64       `json:"timezone_id,omitempty" validate:"omitempty,gt=0"`
+	SeverityId                *int64       `json:"severity_id,omitempty" validate:"omitempty,gt=0"`
+	CheckCommandId            *int64       `json:"check_command_id,omitempty" validate:"omitempty,gt=0"`
+	CheckCommandArgs          []string     `json:"check_command_args,omitempty" validate:"omitempty,dive,required"`
+	CheckTimeperiodId         *int64       `json:"check_timeperiod_id,omitempty" validate:"omitempty,gt=0"`
 	MaxCheckAttempts          *int         `json:"max_check_attempts,omitempty"`
 	CheckInterval             *int         `json:"check_interval,omitempty"`
 	RetryCheckInterval        *int         `json:"retry_check_interval,omitempty"`
@@ -85,7 +85,7 @@ type HostUpdateRequest struct {
 	NotificationEnabled       *CheckState  `json:"notification_enabled,omitempty" validate:"omitempty,oneof=0 1 2"`
 	NotificationOptions       *int         `json:"notification_options,omitempty"`
 	NotificationInterval      *int         `json:"notification_interval,omitempty"`
-	NotificationTimeperiodId  *int64       `json:"notification_timeperiod_id,omitempty"`
+	NotificationTimeperiodId  *int64       `json:"notification_timeperiod_id,omitempty" validate:"omitempty,gt=0"`
 	AddInheritedContactGroup  *bool        `json:"add_inherited_contact_group,omitempty"`
 	AddInheritedContact       *bool        `json:"add_inherited_contact,omitempty"`
 	FirstNotificationDelay    *int         `json:"first_notification_delay,omitempty"`
@@ -97,18 +97,18 @@ type HostUpdateRequest struct {
 	LowFlapThreshold          *int         `json:"low_flap_threshold,omitempty"`
 	HighFlapThreshold         *int         `json:"high_flap_threshold,omitempty"`
 	EventHandlerEnabled       *CheckState  `json:"event_handler_enabled,omitempty" validate:"omitempty,oneof=0 1 2"`
-	EventHandlerCommandId     *int64       `json:"event_handler_command_id,omitempty"`
-	EventHandlerCommandArgs   []string     `json:"event_handler_command_args,omitempty"`
+	EventHandlerCommandId     *int64       `json:"event_handler_command_id,omitempty" validate:"omitempty,gt=0"`
+	EventHandlerCommandArgs   []string     `json:"event_handler_command_args,omitempty" validate:"omitempty,dive,required"`
 	NoteUrl                   *string      `json:"note_url,omitempty" validate:"omitempty,max=65535"`
 	Note                      *string      `json:"note,omitempty" validate:"omitempty,max=65535"`
 	ActionUrl                 *string      `json:"action_url,omitempty" validate:"omitempty,max=65535"`
-	IconId                    *int64       `json:"icon_id,omitempty"`
+	IconId                    *int64       `json:"icon_id,omitempty" validate:"omitempty,gt=0"`
 	IconAlternative           *string      `json:"icon_alternative,omitempty" validate:"omitempty,max=200"`
 	Comment                   *string      `json:"comment,omitempty"`
 	IsActivated               *bool        `json:"is_activated,omitempty"`
-	Categories                []int64      `json:"categories,omitempty"`
-	Groups                    []int64      `json:"groups,omitempty"`
-	Macros                    []Macro      `json:"macros,omitempty"`
+	Categories                []int64      `json:"categories,omitempty" validate:"omitempty,dive,gt=0"`
+	Groups                    []int64      `json:"groups,omitempty" validate:"omitempty,dive,gt=0"`
+	Macros                    []Macro      `json:"macros,omitempty" validate:"omitempty,dive"`
 }
 
 // HostResponse represents the response after creating or updating a host in Centreon.

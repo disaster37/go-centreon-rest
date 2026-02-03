@@ -62,6 +62,8 @@ func (s *ApiTestSuite) SetupSuite() {
 		}
 	}
 
+	// Create all stauff needed for tests
+
 }
 
 func (s *ApiTestSuite) TearDownSuite() {

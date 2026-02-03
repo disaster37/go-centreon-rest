@@ -3,8 +3,10 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"emperror.dev/errors"
+	"github.com/go-playground/validator/v10"
 	"github.com/go-resty/resty/v2"
 	"github.com/sirupsen/logrus"
 )
@@ -52,6 +54,10 @@ func (c *DefaultCommandService) Get(id int64) (commandResponse *CommandResponse,
 
 	c.logger.Debugf("Get command with Id: %d", id)
 
+	if id <= 0 {
+		return nil, errors.Errorf("invalid command id: %d", id)
+	}
+
 	commandResponse = new(CommandResponse)
 
 	response, err := c.client.R().
@@ -79,6 +85,10 @@ func (c *DefaultCommandService) Get(id int64) (commandResponse *CommandResponse,
 func (c *DefaultCommandService) GetByName(name string) (commandResponse *CommandFindResponse, err error) {
 
 	c.logger.Debugf("Get command with Name: %s", name)
+
+	if strings.TrimSpace(name) == "" {
+		return nil, errors.New("command name cannot be empty")
+	}
 
 	commandListResponse, err := c.Find(&ListOptions{
 		Search: map[string]interface{}{
@@ -129,6 +139,11 @@ func (c *DefaultCommandService) Find(opts *ListOptions) (commandListResponse *Li
 func (c *DefaultCommandService) Create(command *CommandCreateOrUpdateRequest) (commandResponse *CommandResponse, err error) {
 	c.logger.Debugf("Create command with data: %+v", command)
 
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	if err := validate.Struct(command); err != nil {
+		return nil, errors.Wrap(err, "validation error on create command")
+	}
+
 	commandResponse = new(CommandResponse)
 
 	response, err := c.client.R().
@@ -153,6 +168,15 @@ func (c *DefaultCommandService) Create(command *CommandCreateOrUpdateRequest) (c
 func (c *DefaultCommandService) Update(id int64, command *CommandCreateOrUpdateRequest) (err error) {
 	c.logger.Debugf("Update command with id %d and data: %+v", id, command)
 
+	if id <= 0 {
+		return errors.Errorf("invalid command id: %d", id)
+	}
+
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	if err := validate.Struct(command); err != nil {
+		return errors.Wrap(err, "validation error on update host")
+	}
+
 	response, err := c.client.R().
 		SetBody(command).
 		SetPathParam("id", fmt.Sprintf("%d", id)).
@@ -174,6 +198,10 @@ func (c *DefaultCommandService) Update(id int64, command *CommandCreateOrUpdateR
 // Delete delete and existing command
 func (c *DefaultCommandService) Delete(id int64) (err error) {
 	c.logger.Debugf("Delete command with id: %d", id)
+
+	if id <= 0 {
+		return errors.Errorf("invalid command id: %d", id)
+	}
 
 	response, err := c.client.R().
 		SetPathParam("id", fmt.Sprintf("%d", id)).

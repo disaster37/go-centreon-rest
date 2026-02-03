@@ -1,7 +1,5 @@
 package api
 
-
-
 // AuthenticationRequest represents the login request structure
 type AuthenticationRequest struct {
 	Security AuthenticationRequestSecurity `json:"security" validate:"required"`
@@ -23,7 +21,7 @@ type LoginAuthenticationResponse struct {
 }
 
 type LoginAuthenticationResponseContact struct {
-	ID      *int   `json:"id,omitempty"`
+	Id      int    `json:"id,omitempty"`
 	Name    string `json:"name,omitempty"`
 	Alias   string `json:"alias,omitempty"`
 	Email   string `json:"email,omitempty"`
@@ -48,7 +46,7 @@ type PasswordUpdateResponse struct {
 
 // ProviderConfiguration represents authentication provider configuration
 type ProviderConfiguration struct {
-	ID                *int   `json:"id,omitempty"`
+	Id                int    `json:"id,omitempty"`
 	Type              string `json:"type" validate:"required"`
 	Name              string `json:"name" validate:"required"`
 	AuthenticationURI string `json:"authentication_uri,omitempty"`

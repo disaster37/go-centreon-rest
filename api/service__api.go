@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"emperror.dev/errors"
 	"github.com/go-playground/validator/v10"
@@ -67,8 +68,8 @@ func NewServiceService(client *resty.Client, logger *logrus.Entry) ServiceServic
 func (h *DefaultServiceService) Create(service *ServiceCreateRequest) (serviceResponse *ServiceResponse, err error) {
 	h.logger.Debugf("Create Service: %+v", service)
 
-	Validator := validator.New()
-	if err := Validator.Struct(service); err != nil {
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	if err := validate.Struct(service); err != nil {
 		return nil, errors.Wrap(err, "validation error on create service")
 	}
 
@@ -97,8 +98,12 @@ func (h *DefaultServiceService) Create(service *ServiceCreateRequest) (serviceRe
 func (h *DefaultServiceService) Update(id int64, service *ServiceUpdateRequest) (err error) {
 	h.logger.Debugf("Update Service ID %d: %+v", id, service)
 
-	Validator := validator.New()
-	if err := Validator.Struct(service); err != nil {
+	if id <= 0 {
+		return errors.New("invalid service ID for update")
+	}
+
+	validate := validator.New(validator.WithRequiredStructEnabled())
+	if err := validate.Struct(service); err != nil {
 		return errors.Wrap(err, "validation error on update service")
 	}
 
@@ -123,6 +128,10 @@ func (h *DefaultServiceService) Update(id int64, service *ServiceUpdateRequest) 
 // Delete deletes a service by its ID
 func (h *DefaultServiceService) Delete(id int64) (err error) {
 	h.logger.Debugf("Delete Service ID %d", id)
+
+	if id <= 0 {
+		return errors.New("invalid service ID for delete")
+	}
 
 	response, err := h.client.R().
 		SetPathParam("id", fmt.Sprintf("%d", id)).
@@ -177,6 +186,10 @@ func (h *DefaultServiceService) Find(options *ListOptions) (response *ListRespon
 func (h *DefaultServiceService) Get(id int64) (serviceResponse *ServiceResponse, err error) {
 	h.logger.Debugf("Get Service by ID: %d", id)
 
+	if id <= 0 {
+		return nil, errors.New("invalid service id: 0")
+	}
+
 	serviceResponse = new(ServiceResponse)
 
 	response, err := h.client.R().
@@ -204,6 +217,10 @@ func (h *DefaultServiceService) Get(id int64) (serviceResponse *ServiceResponse,
 func (h *DefaultServiceService) GetByName(name string) (response *ServiceListResponse, err error) {
 	h.logger.Debugf("Get Service by Name: %s", name)
 
+	if strings.TrimSpace(name) == "" {
+		return nil, errors.New("service name cannot be empty")
+	}
+
 	options := &ListOptions{
 		Search: map[string]interface{}{
 			"name": name,
@@ -226,6 +243,10 @@ func (h *DefaultServiceService) GetByName(name string) (response *ServiceListRes
 func (h *DefaultServiceService) GetServicesByHostID(hostID int64) (response *ListResponse[ServiceListResponse], err error) {
 	h.logger.Debugf("Get Services by Host ID: %d", hostID)
 
+	if hostID <= 0 {
+		return nil, errors.New("invalid host ID for getting services")
+	}
+
 	options := &ListOptions{
 		Search: map[string]interface{}{
 			"host.id": hostID,
@@ -244,6 +265,10 @@ func (h *DefaultServiceService) GetServicesByHostID(hostID int64) (response *Lis
 func (h *DefaultServiceService) GetServicesByHostName(hostName string) (response *ListResponse[ServiceListResponse], err error) {
 	h.logger.Debugf("Get Services by Host Name: %s", hostName)
 
+	if strings.TrimSpace(hostName) == "" {
+		return nil, errors.New("host name cannot be empty for getting services")
+	}
+
 	options := &ListOptions{
 		Search: map[string]interface{}{
 			"host.name": hostName,
@@ -261,6 +286,14 @@ func (h *DefaultServiceService) GetServicesByHostName(hostName string) (response
 // GetFromRealTime retrieves real-time data for a service by its ID
 func (h *DefaultServiceService) GetFromRealTime(hostId int64, serviceId int64) (serviceResponse *ServiceRealTimeResponse, err error) {
 	h.logger.Debugf("Get Service from Real-Time by ID hostId: %d, serviceId: %d", hostId, serviceId)
+
+	if hostId <= 0 {
+		return nil, errors.New("invalid host id: 0")
+	}
+
+	if serviceId <= 0 {
+		return nil, errors.New("invalid service id: 0")
+	}
 
 	serviceResponse = new(ServiceRealTimeResponse)
 

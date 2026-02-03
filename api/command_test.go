@@ -1,14 +1,32 @@
 package api
 
+import "k8s.io/utils/ptr"
+
 func (s *ApiTestSuite) TestCommandApi() {
 
 	// Create Command
 	commandToCreate := &CommandCreateOrUpdateRequest{
-		Name:        "test2",
-		Type:        CommandTypeCheck,
-		CommandLine: "/usr/bin/test_command",
+		Name:            "test2",
+		Type:            CommandTypeCheck,
+		CommandLine:     "/usr/bin/test_command $ARG0$ $_HOSTSNMPVERSION$",
+		IsShell:         ptr.To(true),
+		ArgumentExample: ptr.To("!80!90"),
+		Arguments: []CommandArgument{
+			{
+				Name:        "ARG0",
+				Description: ptr.To("argument-description"),
+			},
+		},
+		Macros: []CommandMacro{
+			{
+				Name:        "SNMPVERSION",
+				Type:        HostMacro,
+				Description: ptr.To("macro-description"),
+			},
+		},
+		ConnectorId:     ptr.To(int64(1)),
+		GraphTemplateId: ptr.To(int64(1)),
 	}
-
 	createResp, err := s.api.Command().Create(commandToCreate)
 	s.NoError(err)
 	s.NotNil(createResp)

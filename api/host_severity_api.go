@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"strings"
 
 	"emperror.dev/errors"
 	"github.com/go-playground/validator/v10"
@@ -78,6 +79,10 @@ func (s *DefaultHostSeverityService) Create(hostSeverity *HostSeverityCreateOrUp
 func (s *DefaultHostSeverityService) Delete(id int64) (err error) {
 	s.logger.Debugf("Delete host severity with Id: %d", id)
 
+	if id <= 0 {
+		return errors.New("invalid host severity id: 0")
+	}
+
 	response, err := s.client.R().
 		SetPathParam("severityId", fmt.Sprintf("%d", id)).
 		Delete("/configuration/hosts/severities/{severityId}")
@@ -101,6 +106,10 @@ func (s *DefaultHostSeverityService) Delete(id int64) (err error) {
 // Get retrieves a host severity by its ID.
 func (s *DefaultHostSeverityService) Get(id int64) (hostSeverityResponse *HostSeverityResponse, err error) {
 	s.logger.Debugf("Get host severity with Id: %d", id)
+
+	if id <= 0 {
+		return nil, errors.New("invalid host severity id: 0")
+	}
 
 	hostSeverityResponse = new(HostSeverityResponse)
 
@@ -128,6 +137,10 @@ func (s *DefaultHostSeverityService) Get(id int64) (hostSeverityResponse *HostSe
 // GetByName retrieves a host severity by its Name.
 func (s *DefaultHostSeverityService) GetByName(name string) (hostSeverityResponse *HostSeverityResponse, err error) {
 	s.logger.Debugf("Get host severity with name: %s", name)
+
+	if strings.TrimSpace(name) == "" {
+		return nil, errors.New("host severity name cannot be empty")
+	}
 
 	listResponse, err := s.List(&ListOptions{
 		Search: map[string]interface{}{
@@ -177,6 +190,10 @@ func (s *DefaultHostSeverityService) List(opts *ListOptions) (hostSeverityListRe
 // Update updates an existing host severity by its ID.
 func (h *DefaultHostSeverityService) Update(id int64, hostSeverity *HostSeverityCreateOrUpdateRequest) (err error) {
 	h.logger.Debugf("Update host severity with Id: %d, Data: %+v", id, hostSeverity)
+
+	if id <= 0 {
+		return errors.New("invalid host severity id: 0")
+	}
 
 	validate := validator.New(validator.WithRequiredStructEnabled())
 	if err := validate.Struct(hostSeverity); err != nil {
