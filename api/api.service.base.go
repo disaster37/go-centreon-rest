@@ -2,6 +2,7 @@ package centreonapi
 
 import (
 	"encoding/json"
+	"net/http"
 	"strings"
 
 	"github.com/disaster37/go-centreon-rest/v21/models"
@@ -43,6 +44,9 @@ func (s *serviceBaseImpl) Get(host, name string) (service *models.ServiceBaseGet
 	if err != nil {
 		return nil, err
 	}
+	if resp.StatusCode() == http.StatusNotFound {
+		return nil, nil
+	}
 	if resp.StatusCode() >= 300 {
 		return nil, errors.Errorf("Error when get service %s on host %s: %s", name, host, resp.Body())
 	}
@@ -74,6 +78,9 @@ func (s *serviceBaseImpl) List() (services []*models.ServiceBaseGet, err error) 
 		Post("")
 	if err != nil {
 		return nil, err
+	}
+	if resp.StatusCode() == http.StatusNotFound {
+		return nil, nil
 	}
 	if resp.StatusCode() >= 300 {
 		return nil, errors.Errorf("Error when get all services: %s", resp.Body())
@@ -139,6 +146,9 @@ func (s *serviceBaseImpl) Delete(host, name string) (err error) {
 		Post("")
 	if err != nil {
 		return err
+	}
+	if resp.StatusCode() == http.StatusNotFound {
+		return nil
 	}
 	if resp.StatusCode() >= 300 {
 		return errors.Errorf("Error when delete service %s on host %s: %s", name, host, resp.Body())
@@ -330,6 +340,9 @@ func (s *serviceBaseImpl) DeleteMacro(host, service, name string) (err error) {
 	if err != nil {
 		return err
 	}
+	if resp.StatusCode() == http.StatusNotFound {
+		return nil
+	}
 	if resp.StatusCode() >= 300 {
 		return errors.Errorf("Error when delete macro: %s", resp.Body())
 	}
@@ -432,6 +445,9 @@ func (s *serviceBaseImpl) DeleteCategories(host, service string, categories []st
 		Post("")
 	if err != nil {
 		return err
+	}
+	if resp.StatusCode() == http.StatusNotFound {
+		return nil
 	}
 	if resp.StatusCode() >= 300 {
 		return errors.Errorf("Error when delete categories: %s", resp.Body())
@@ -536,6 +552,9 @@ func (s *serviceBaseImpl) DeleteServiceGroups(host, service string, serviceGroup
 	if err != nil {
 		return err
 	}
+	if resp.StatusCode() == http.StatusNotFound {
+		return nil
+	}
 	if resp.StatusCode() >= 300 {
 		return errors.Errorf("Error when delete service groups: %s", resp.Body())
 	}
@@ -638,6 +657,9 @@ func (s *serviceBaseImpl) DeleteTraps(host, service string, traps []string) (err
 		Post("")
 	if err != nil {
 		return err
+	}
+	if resp.StatusCode() == http.StatusNotFound {
+		return nil
 	}
 	if resp.StatusCode() >= 300 {
 		return errors.Errorf("Error when delete traps: %s", resp.Body())

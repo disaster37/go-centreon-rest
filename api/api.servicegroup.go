@@ -2,6 +2,7 @@ package centreonapi
 
 import (
 	"encoding/json"
+	"net/http"
 	"strings"
 
 	"github.com/disaster37/go-centreon-rest/v21/models"
@@ -42,6 +43,9 @@ func (s *ServiceGroupImpl) Get(name string) (sg *models.ServiceGroup, err error)
 	if err != nil {
 		return nil, err
 	}
+	if resp.StatusCode() == http.StatusNotFound {
+		return nil, nil
+	}
 	if resp.StatusCode() >= 300 {
 		return nil, errors.Errorf("Error when get serviceGroup %s: %s", name, resp.Body())
 	}
@@ -72,6 +76,9 @@ func (s *ServiceGroupImpl) List() (serviceGroups []*models.ServiceGroup, err err
 		Post("")
 	if err != nil {
 		return nil, err
+	}
+	if resp.StatusCode() == http.StatusNotFound {
+		return nil, nil
 	}
 	if resp.StatusCode() >= 300 {
 		return nil, errors.Errorf("Error when get all serviceGroups: %s", resp.Body())
@@ -132,6 +139,9 @@ func (s *ServiceGroupImpl) Delete(name string) (err error) {
 		Post("")
 	if err != nil {
 		return err
+	}
+	if resp.StatusCode() == http.StatusNotFound {
+		return nil
 	}
 	if resp.StatusCode() >= 300 {
 		return errors.Errorf("Error when delete serviceGroup %s: %s", name, resp.Body())
