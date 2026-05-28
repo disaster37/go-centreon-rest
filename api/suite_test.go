@@ -62,11 +62,17 @@ func (s *ApiTestSuite) SetupSuite() {
 		}
 	}
 
+	// Clean old tests
+	s.cleanTest()
+
 	// Create all stauff needed for tests
 
 }
 
 func (s *ApiTestSuite) TearDownSuite() {
+
+	// Clean tests
+	s.cleanTest()
 	// Delete test hosts
 	hostResult, err := s.api.Host().GetByName("test2")
 	if err != nil {
@@ -88,4 +94,14 @@ func (s *ApiTestSuite) TearDownSuite() {
 
 func TestApiTestSuite(t *testing.T) {
 	suite.Run(t, new(ApiTestSuite))
+}
+
+func (s *ApiTestSuite) cleanTest() {
+
+	// Clean commands
+	command, _ := s.api.Command().GetByName("test2")
+	if command != nil {
+		s.api.Command().Delete(command.Id)
+	}
+
 }
